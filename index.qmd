@@ -1,0 +1,33 @@
+
+---
+title: "PRIMER REPORTE EN QUARTO"
+author: "Yachay tech University"
+date: "25-09-2025"
+format: html
+---
+
+# titulo 1
+## subtitulo
+
+```{python}
+import altair as alt
+from vega_datasets import data
+cars = data.cars()
+print(cars.head())
+```
+
+## Visualizacion en altair
+```{python}
+
+alt.Chart(cars).mark_point().encode(
+    x="Miles_per_Gallon",
+    y="Horsepower",
+    tooltip=["Name","Origin","Miles_per_Gallon","Horsepower"]
+).interactive()
+
+```
+### subtitulo 3
+
+-lista 
+    -elemento 1
+    -elemento 2
