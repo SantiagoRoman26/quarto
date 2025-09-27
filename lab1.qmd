@@ -31,6 +31,7 @@ print(datos.head())
 
 ```
 
+### Distribucion de personas con capacidad por provincia y genero
 ```{python}
 
 chart1 = alt.Chart(datos).mark_bar().encode(
@@ -47,9 +48,10 @@ chart1 = alt.Chart(datos).mark_bar().encode(
 chart1
 ```
 
+### Heatmap de relación entre tipo de Discapacidad y grupo de Edad
 
-```{python}
-chart2 = alt.Chart(datos).mark_bar().encode(
+<!-- ```{python}
+chart4= alt.Chart(datos).mark_bar().encode(
     y=alt.Y('Grupo Etareo:N', sort='x', title='Grupo Etario'),
     x=alt.X('sum(Recuento):Q', title='Número de Personas'),
     color='Grado de Discapacidad:N',
@@ -60,15 +62,14 @@ chart2 = alt.Chart(datos).mark_bar().encode(
     height=400
 )
 
-chart2
-```
+chart4
+``` -->
 
 
 ```{python}
-# Prepara datos para heatmap
 heatmap_data = datos.groupby(['Tipo de Discapacidad', 'Grupo Etareo'])['Recuento'].sum().reset_index()
 
-chart3 = alt.Chart(heatmap_data).mark_rect().encode(
+chart2 = alt.Chart(heatmap_data).mark_rect().encode(
     x='Tipo de Discapacidad:N',
     y='Grupo Etareo:N',
     color=alt.Color('Recuento:Q', scale=alt.Scale(scheme='blues')),
@@ -79,12 +80,12 @@ chart3 = alt.Chart(heatmap_data).mark_rect().encode(
     height=400
 )
 
-chart3
+chart2
 ```
-
+### Distribución por tipo de Discapacidad
 
 ```{python}
-chart4 = alt.Chart(datos).mark_arc().encode(
+chart3 = alt.Chart(datos).mark_arc().encode(
     theta='sum(Recuento):Q',
     color='Tipo de Discapacidad:N',
     tooltip=['Tipo de Discapacidad', 'sum(Recuento)']
@@ -92,5 +93,5 @@ chart4 = alt.Chart(datos).mark_arc().encode(
     title='Distribución por Tipo de Discapacidad'
 )
 
-chart4
+chart3
 ```
