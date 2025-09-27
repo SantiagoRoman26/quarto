@@ -35,10 +35,42 @@ alt.Chart(cars).mark_point(filled=True).encode(
     x="Miles_per_Gallon",
     y="Horsepower",
     color="Origin",
+    shape= "Origin",
     tooltip=["Name", "Origin", "Miles_per_Gallon", "Horsepower"]
 ).interactive()
 ```
 
--lista 
-    -elemento 1
-    -elemento 2
+### Agregaciones    
+
+```{python}
+alt.Chart(cars).mark_bar().encode(
+    alt.X('Origin',sort="y"),
+    alt.Y('count()')
+)
+```
+
+`Mean()` de cada uno de los origenes
+
+```{python}
+alt.Chart(cars).mark_bar().encode(
+    alt.X('Origin',sort="y"),
+    alt.Y('mean(Weight_in_lbs)'),
+    tooltip=['Origin','mean(Weight_in_lbs)']
+).properties(
+    width=200,
+    height=200
+)
+```
+
+### Grafico Lineal
+
+
+```{python}
+alt.Chart(cars).mark_line(point=True).encode(
+    alt.X('Year'),
+    alt.Y('mean(Weight_in_lbs)'),
+    alt.Color('Origin')
+).properties(
+    width=600
+)
+```
