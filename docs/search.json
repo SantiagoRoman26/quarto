@@ -1,0 +1,23 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "PRIMER REPORTE EN QUARTO",
+    "section": "",
+    "text": "Code\nimport altair as alt\nfrom vega_datasets import data\ncars = data.cars()\nprint(cars.head())\n\n\n                        Name  Miles_per_Gallon  Cylinders  Displacement  \\\n0  chevrolet chevelle malibu              18.0          8         307.0   \n1          buick skylark 320              15.0          8         350.0   \n2         plymouth satellite              18.0          8         318.0   \n3              amc rebel sst              16.0          8         304.0   \n4                ford torino              17.0          8         302.0   \n\n   Horsepower  Weight_in_lbs  Acceleration       Year Origin  \n0       130.0           3504          12.0 1970-01-01    USA  \n1       165.0           3693          11.5 1970-01-01    USA  \n2       150.0           3436          11.0 1970-01-01    USA  \n3       150.0           3433          12.0 1970-01-01    USA  \n4       140.0           3449          10.5 1970-01-01    USA  \n\n\n\n\n\n\n\nCode\nalt.Chart(cars).mark_point().encode(\n    x=\"Miles_per_Gallon\",\n    y=\"Horsepower\",\n    tooltip=[\"Name\",\"Origin\",\"Miles_per_Gallon\",\"Horsepower\"]\n).interactive()\n\n\n\n\n\n\n\n\n\n\n\n\nCode\nalt.Chart(cars).mark_point(filled=True).encode(\n    x=\"Miles_per_Gallon\",\n    y=\"Horsepower\",\n    color=\"Origin\",\n    shape= \"Origin\",\n    tooltip=[\"Name\", \"Origin\", \"Miles_per_Gallon\", \"Horsepower\"]\n).interactive()\n\n\n\n\n\n\n\n\n\n\n\n\n\nCode\nalt.Chart(cars).mark_bar().encode(\n    alt.X('Origin',sort=\"y\"),\n    alt.Y('count()')\n)\n\n\n\n\n\n\n\n\nMean() de cada uno de los origenes\n\n\nCode\nalt.Chart(cars).mark_bar().encode(\n    alt.X('Origin',sort=\"y\"),\n    alt.Y('mean(Weight_in_lbs)'),\n    tooltip=['Origin','mean(Weight_in_lbs)']\n).properties(\n    width=200,\n    height=200\n)\n\n\n\n\n\n\n\n\n\n\n\n\n\nCode\nalt.Chart(cars).mark_line(point=True).encode(\n    alt.X('Year'),\n    alt.Y('mean(Weight_in_lbs)'),\n    alt.Color('Origin')\n).properties(\n    width=600\n)"
+  },
+  {
+    "objectID": "index.html#subtitulo",
+    "href": "index.html#subtitulo",
+    "title": "PRIMER REPORTE EN QUARTO",
+    "section": "",
+    "text": "Code\nimport altair as alt\nfrom vega_datasets import data\ncars = data.cars()\nprint(cars.head())\n\n\n                        Name  Miles_per_Gallon  Cylinders  Displacement  \\\n0  chevrolet chevelle malibu              18.0          8         307.0   \n1          buick skylark 320              15.0          8         350.0   \n2         plymouth satellite              18.0          8         318.0   \n3              amc rebel sst              16.0          8         304.0   \n4                ford torino              17.0          8         302.0   \n\n   Horsepower  Weight_in_lbs  Acceleration       Year Origin  \n0       130.0           3504          12.0 1970-01-01    USA  \n1       165.0           3693          11.5 1970-01-01    USA  \n2       150.0           3436          11.0 1970-01-01    USA  \n3       150.0           3433          12.0 1970-01-01    USA  \n4       140.0           3449          10.5 1970-01-01    USA"
+  },
+  {
+    "objectID": "index.html#visualizacion-en-altair",
+    "href": "index.html#visualizacion-en-altair",
+    "title": "PRIMER REPORTE EN QUARTO",
+    "section": "",
+    "text": "Code\nalt.Chart(cars).mark_point().encode(\n    x=\"Miles_per_Gallon\",\n    y=\"Horsepower\",\n    tooltip=[\"Name\",\"Origin\",\"Miles_per_Gallon\",\"Horsepower\"]\n).interactive()\n\n\n\n\n\n\n\n\n\n\n\n\nCode\nalt.Chart(cars).mark_point(filled=True).encode(\n    x=\"Miles_per_Gallon\",\n    y=\"Horsepower\",\n    color=\"Origin\",\n    shape= \"Origin\",\n    tooltip=[\"Name\", \"Origin\", \"Miles_per_Gallon\", \"Horsepower\"]\n).interactive()\n\n\n\n\n\n\n\n\n\n\n\n\n\nCode\nalt.Chart(cars).mark_bar().encode(\n    alt.X('Origin',sort=\"y\"),\n    alt.Y('count()')\n)\n\n\n\n\n\n\n\n\nMean() de cada uno de los origenes\n\n\nCode\nalt.Chart(cars).mark_bar().encode(\n    alt.X('Origin',sort=\"y\"),\n    alt.Y('mean(Weight_in_lbs)'),\n    tooltip=['Origin','mean(Weight_in_lbs)']\n).properties(\n    width=200,\n    height=200\n)\n\n\n\n\n\n\n\n\n\n\n\n\n\nCode\nalt.Chart(cars).mark_line(point=True).encode(\n    alt.X('Year'),\n    alt.Y('mean(Weight_in_lbs)'),\n    alt.Color('Origin')\n).properties(\n    width=600\n)"
+  }
+]
