@@ -1,0 +1,96 @@
+
+---
+title: "Laboratorio 1"
+author: "Santiago Roman"
+date: "27-09-2025"
+<!-- format: 
+  html:
+    embed-resources: true  -->
+---
+
+
+# Actividad: **Lab 1**
+
+### Importar el DataSet a usar
+```{python}
+import altair as alt
+from vega_datasets import data
+import pandas as pd
+
+# Carga con el separador correcto y encoding
+try:
+    datos = pd.read_csv("rnd_01102021.csv", encoding='latin-1', sep=';')
+except:
+    try:
+        datos = pd.read_csv("rnd_01102021.csv", encoding='utf-8', sep=';')
+    except:
+        datos = pd.read_csv("rnd_01102021.csv", sep=';')
+
+# Verifica la estructura
+print(datos.head())
+
+```
+
+```{python}
+
+chart1 = alt.Chart(datos).mark_bar().encode(
+    x=alt.X('Provincia:N', sort='-y', title='Provincia'),
+    y=alt.Y('sum(Recuento):Q', title='Número de Personas'),
+    color='Género:N',
+    tooltip=['Provincia', 'Género', 'sum(Recuento)']
+).properties(
+    title='Distribución por Provincia y Género',
+    width=600, 
+    height=400
+)
+
+chart1
+```
+
+
+```{python}
+chart2 = alt.Chart(datos).mark_bar().encode(
+    y=alt.Y('Grupo Etareo:N', sort='x', title='Grupo Etario'),
+    x=alt.X('sum(Recuento):Q', title='Número de Personas'),
+    color='Grado de Discapacidad:N',
+    tooltip=['Grupo Etareo', 'Grado de Discapacidad', 'sum(Recuento)']
+).properties(
+    title='Grado de Discapacidad por Grupo de Edad',
+    width=600, 
+    height=400
+)
+
+chart2
+```
+
+
+```{python}
+# Prepara datos para heatmap
+heatmap_data = datos.groupby(['Tipo de Discapacidad', 'Grupo Etareo'])['Recuento'].sum().reset_index()
+
+chart3 = alt.Chart(heatmap_data).mark_rect().encode(
+    x='Tipo de Discapacidad:N',
+    y='Grupo Etareo:N',
+    color=alt.Color('Recuento:Q', scale=alt.Scale(scheme='blues')),
+    tooltip=['Tipo de Discapacidad', 'Grupo Etareo', 'Recuento']
+).properties(
+    title='Relación entre Tipo de Discapacidad y Grupo de Edad',
+    width=600, 
+    height=400
+)
+
+chart3
+```
+
+
+```{python}
+chart4 = alt.Chart(datos).mark_arc().encode(
+    theta='sum(Recuento):Q',
+    color='Tipo de Discapacidad:N',
+    tooltip=['Tipo de Discapacidad', 'sum(Recuento)']
+).properties(
+    title='Distribución por Tipo de Discapacidad'
+)
+
+chart4
+```
