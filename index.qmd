@@ -26,7 +26,16 @@ alt.Chart(cars).mark_point().encode(
 ).interactive()
 
 ```
-### subtitulo 3
+### Visualizacion de Scatterplot con color
+
+```{python}
+alt.Chart(cars).mark_point(filled=True).encode(
+    x="Miles_per_Gallon",
+    y="Horsepower",
+    color="Origin",
+    tooltip=["Name", "Origin", "Miles_per_Gallon", "Horsepower"]
+).interactive()
+```
 
 -lista 
     -elemento 1
