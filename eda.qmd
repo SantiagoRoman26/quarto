@@ -1,0 +1,651 @@
+
+---
+title: "Exploratory Data Analysis (EDA)"
+format:
+  html:
+    code-fold: true
+    toc: true
+    number-sections: true
+    df-print: paged
+---
+
+# Introduction
+
+Exploratory Data Analysis (EDA) is one of the fundamental steps in any data science process. It allows us to **understand the structure**, **detect anomalies**, and **uncover patterns** in the data before modeling.
+
+> *"Without EDA, you're not doing data science, you're just guessing."*
+
+EDA combines statistics, programming, and **visualization** to explore datasets. This report is designed to help you practice these core skills using real-world data.
+
+
+## Dataset
+
+We will use the **`movies`** dataset from [vega-datasets](https://vega.github.io/vega-datasets/), which includes information about thousands of films such as their ratings, genres, duration, and box office revenue.
+
+Let's load and preview the dataset:
+
+```{python}
+import pandas as pd
+import altair as alt
+from vega_datasets import data
+
+# Load dataset
+movies = data.movies()
+
+# Show first rows
+movies.head()
+```
+
+Now, let’s examine the shape (number of rows and columns) of the dataset:
+
+```{python}
+movies.shape
+```
+
+This tells us how many entries (rows) and features (columns) are present in the dataset.
+
+
+## First Steps
+
+Before diving deeper into the data, it’s useful to explore some key metadata:
+
+- ✅ The **column names** and their **data types**
+- ⚠️ The **presence of missing values**
+- 📊 Summary **statistics** for numeric columns
+
+### Column Names and Data Types
+
+Understanding the structure of the dataset helps us know what type of data we're dealing with.
+
+```{python}
+movies.dtypes
+```
+We can also use .info() for a more complete summary, including non-null counts:
+
+
+```{python}
+# Overview of the dataset
+movies.info()
+```
+
+## Missing Values
+
+Detecting and handling missing values is a critical step in any EDA process. Missing data can bias analysis or break downstream models if not handled properly.
+
+- Detect **patterns** in missingness
+- Identify if some columns are almost entirely null
+- Decide whether to **drop** or **impute** certain variables
+
+
+### Percentage of Missing Values per Column
+
+Let’s start by computing the percentage of missing values in each column:
+
+```{python}
+nan_percent = movies.isna().mean() * 100
+nan_percent_sorted = nan_percent.sort_values(ascending=False).round(2)
+nan_percent_sorted
+```
+
+### Reshaping the Data for Visualization
+
+To visualize missing values with Altair, we need to reshape the data into a long format where each missing value is a row:
+
+```{python}
+movies_nans = movies.isna().reset_index().melt(
+    id_vars='index',
+    var_name='column',
+    value_name="NaN"
+)
+movies_nans
+```
+
+### Heatmap of Missing Data
+
+This heatmap shows where missing values occur across rows and columns. Patterns may indicate:
+
+- Columns with consistently missing values
+- Entire rows with large gaps
+- Correlated missingness between variables
+
+To avoid limitations in the number of rows rendered by Altair, we disable the max rows warning:
+
+```{python}
+alt.data_transformers.disable_max_rows()
+```
+
+Now we can create the heatmap:
+```{python}
+alt.Chart(movies_nans).mark_rect().encode(
+    alt.X('index:O'),
+    alt.Y('column'),
+    alt.Color('NaN')
+).properties(
+    width=1000
+)
+```
+This plot can help identify columns or rows with critical data issues.
+
+### Dropping Columns with High Missing Rate
+
+In many real-world cases, we may decide to remove columns that have too many missing values. Let’s set a threshold of 70%:
+
+```{python}
+threshold_nan = 70 # in percent
+cols_to_drop = nan_percent[nan_percent>threshold_nan].index
+cols_to_drop
+```
+These columns have more than 70% missing values and may not be useful for analysis.
+
+
+## Cleaned Dataset
+Finally, we drop the selected columns and inspect the updated dataset:
+
+```{python}
+movies_cleaned = movies.drop(columns=cols_to_drop)
+movies_cleaned
+```
+
+
+
+
+# Types of Data Analysis in EDA
+
+Understanding the nature of variables and the relationships between them is central to Exploratory Data Analysis (EDA). Depending on the number and type of variables involved, we can classify analysis into three main categories: univariate, bivariate, and multivariate.
+
+@tbl-analysis-types shows how EDA analysis types vary depending on the number and types of variables involved.
+
+> This classification helps guide the selection of appropriate visualization techniques and statistical methods for each case.
+
+::: {.table-caption}
+| **Analysis Type** | **Variable Types**             | **Description**                              | **Examples**                        |
+|-------------------|--------------------------------|----------------------------------------------|-------------------------------------|
+| Univariate        | Categorical                    | One qualitative variable                     | Gender, Product Category            |
+| Univariate        | Quantitative                   | One numerical variable                       | Income, Age, Runtime                |
+| Bivariate         | Categorical – Categorical      | Two qualitative variables                    | Gender vs Nationality               |
+| Bivariate         | Categorical – Quantitative     | One qualitative and one numerical            | Province vs Population              |
+| Bivariate         | Quantitative – Quantitative    | Two numerical variables                      | Age vs Income                       |
+| Multivariate      | 3 or more variables (any mix)  | Combination of categorical and/or numerical  | Age vs Income by Gender, etc.       |
+
+Table: **Types of analysis and variable combinations used in EDA** {#tbl-analysis-types}
+:::
+
+## Univariate Analysis: Quantitative
+
+A univariate analysis focuses on examining a single numeric variable to understand its distribution, shape, central tendency, and spread. One of the most common tools for this is the **histogram**.
+
+In this case, we’ll explore the distribution of the movie runtime (`Running_Time_min`).
+
+### Basic Histogram
+
+We start by creating a histogram to visualize the distribution of running times:
+
+```{python}
+alt.Chart(movies_cleaned).mark_bar().encode(
+    alt.X('Running_Time_min',bin=alt.Bin(maxbins=30)),
+    alt.Y('count()')
+).properties(
+    title='Histogram of Movie Runtimes (30 bins)'
+)
+```
+This chart shows how many movies fall into each time interval (bin). However, histograms can look quite different depending on the number and size of bins used.
+
+### Effect of Bin Size
+
+Let’s compare how the histogram shape changes with different bin sizes:
+```{python}
+histogram_1 = alt.Chart(movies_cleaned).mark_bar().encode(
+    alt.X('Running_Time_min',bin=alt.Bin(maxbins=8)),
+    alt.Y('count()')
+)
+
+histogram_2 = alt.Chart(movies_cleaned).mark_bar().encode(
+    alt.X('Running_Time_min',bin=alt.Bin(maxbins=10)),
+    alt.Y('count()')
+)
+
+histogram_1 | histogram_2
+
+```
+
+Even though both plots use the same data, the choice of bin size changes the visual interpretation. A small number of bins may hide details, while too many bins can make it harder to spot trends.
+
+
+### Density plots, or Kernel Density Estimate (KDE)
+
+Density plots offer a smoothed alternative to histograms. Instead of using rectangular bins to count data points, they estimate the probability density function by placing bell-shaped curves (kernels) at each observation and summing them.
+
+This approach helps reduce the visual noise and jaggedness that can occur in histograms and gives a clearer picture of the underlying distribution.
+
+```{python}
+alt.Chart(movies_cleaned).transform_density(
+    'Running_Time_min',
+    as_=['Running_Time_min','density'],
+).mark_area().encode(
+    alt.X('Running_Time_min'),
+    alt.Y('density:Q')
+).properties(
+    title="Movies runtime"
+)
+```
+
+### Grouped Density plot
+
+We can also compare distributions across groups by splitting the KDE by a **categorical variable** using the groupby parameter. This helps us see how the distribution differs between categories, such as genres.
+
+```{python}
+selection = alt.selection_point(fields=['Major_Genre'], bind='legend')
+
+alt.Chart(movies_cleaned).transform_density(
+    'Running_Time_min',
+    groupby=['Major_Genre'],
+    as_=['Running_Time_min', 'density'],
+).mark_area(opacity=0.5).encode(
+    alt.X('Running_Time_min'),
+    alt.Y('density:Q', stack=None),
+    alt.Color('Major_Genre'),
+    opacity=alt.condition(selection, 
+        alt.value(1), 
+        alt.value(0.05)
+    )
+).add_params(
+    selection
+).properties(
+    title="Movies Runtime by Genre (Interactive Filter)"
+).interactive()
+```
+
+The **transparency (opacity=0.5)** allows us to observe overlapping distributions and ensures that small density areas are not completely hidden behind larger ones.
+
+From this plot, we can observe, for example, that *Drama* movies have runtimes nearly as long as the longest *Adventure* movies, even though their overall distributions differ.
+
+## Bivariate Analysis: Categorical vs Quantitative
+
+Bivariate analysis examines the relationship between two variables. In this case, we focus on one categorical variable (e.g., genre) and one quantitative variable (e.g., revenue), which is a very common scenario in exploratory data analysis.
+
+This type of analysis is useful to:
+- Compare average or median values across categories.
+- Detect outliers or high-variance groups.
+- Understand distributional differences across categories.
+
+Below are several effective visualizations for this analysis.
+
+### Basic Barchart
+
+Bar charts are effective for comparing aggregated values (like the mean) across different groups. However, they hide the distribution and variation within each group.
+
+```{python}
+alt.Chart(movies_cleaned).mark_bar().encode(
+    alt.X('mean(Worldwide_Gross)'),
+    alt.Y("Major_Genre")
+).properties(
+    title="Average Worldwide Gross by Genre"
+)
+```
+This bar chart shows the mean Worldwide Gross per genre. It is useful for identifying which genres are more profitable on average, but does not show how spread out the data is.
+
+### Tick Plot
+
+To visualize individual data points, we use a tick plot. This helps uncover variability within genres and detect outliers.
+
+```{python}
+alt.Chart(movies_cleaned).mark_tick().encode(
+    alt.X('Worldwide_Gross'),
+    alt.Y("Major_Genre"),
+    alt.Tooltip('Title:N')
+).properties(
+    title="Individual Gross per Movie by Genre"
+)
+```
+
+### Heatmaps
+
+Heatmaps can summarize the frequency of data points across both axes (quantitative and categorical) using color intensity. It’s particularly useful for spotting patterns without getting overwhelmed by individual points.
+
+```{python}
+alt.Chart(movies_cleaned).mark_rect().encode(
+    alt.X('Worldwide_Gross',bin=alt.Bin(maxbins=100)),
+    alt.Y("Major_Genre"),
+    alt.Color('count()'),
+    alt.Tooltip('count()')
+).properties(
+    title="Heatmap of Movie Counts by Gross and Genre"
+)
+```
+This heatmap shows how frequently movies from each genre fall into different revenue ranges.
+
+
+
+### Boxplot
+
+Boxplots are useful for comparing distributions across categories and identifying outliers. Boxplots summarize a distribution using five statistics:
+
+- Median (Q2)
+- First Quartile (Q1)
+- Third Quartile (Q3)
+- Lower Whisker (Q1 - 1.5 × IQR)
+- Upper Whisker (Q3 + 1.5 × IQR)
+
+```{python}
+alt.Chart(movies_cleaned).mark_boxplot().encode(
+    alt.X('Worldwide_Gross'),
+    alt.Y("Major_Genre")
+).properties(
+    title="Boxplot of Worldwide Gross by Genre"
+)
+```
+
+
+### Side-by-side: Boxplot and Bar Chart
+
+To contrast aggregated values (bar chart) with the full distribution (boxplot), we can display them together:
+
+```{python}
+bar = alt.Chart(movies_cleaned).mark_bar().encode(
+    alt.X('mean(Worldwide_Gross)'),
+    alt.Y("Major_Genre")
+)
+
+box = alt.Chart(movies_cleaned).mark_boxplot().encode(
+    alt.X('mean(Worldwide_Gross)'),
+    alt.Y("Major_Genre")
+)
+
+box | bar
+```
+This comparison reveals whether the mean is a good representative of the genre, or whether the data is skewed or contains outliers that affect the average
+
+## Bivariate Analysis: Quantitative vs Quantitative
+
+When analyzing two quantitative (numerical) variables simultaneously, we aim to discover possible relationships, trends, or correlations. This type of bivariate analysis can reveal whether increases in one variable are associated with increases or decreases in another (positive or negative correlation), or if there’s no relationship at all. The most common and intuitive visualization for this is the **scatterplot**.
+
+### Scatterplots
+
+Scatter plots are effective visualizations for exploring **two-dimensional distributions**, allowing us to identify patterns, trends, clusters, or outliers.
+
+Let’s start by visualizing how movies are rated across two popular online platforms:
+
+- [IMDb](https://www.imdb.com/)  
+- [Rotten Tomatoes](https://www.rottentomatoes.com)
+
+Are movies rated similarly on different platforms?
+
+
+```{python}
+alt.Chart(movies_cleaned).mark_point().encode(
+    alt.X('IMDB_Rating'),
+    alt.Y('Rotten_Tomatoes_Rating')
+).properties(
+    title="IMDB vs Rotten Tomatoes Ratings"
+)
+```
+
+### Scatterplot Saturation
+
+Scatterplots can become saturated when too many points overlap in a small area of the chart, making it difficult to distinguish dense regions from sparse ones. For example, when plotting financial variables like production budget versus worldwide gross:
+
+
+```{python}
+saturated = alt.Chart(movies_cleaned).mark_point().encode(
+    alt.X('Production_Budget'),
+    alt.Y('Worldwide_Gross')
+).properties(
+    title="Saturated Scatterplot: Budget vs Gross"
+)
+saturated
+```
+
+### Using Binned Heatmap to Reduce Saturation
+To address saturation, we can **bin** both variables and use a heatmap where the color intensity represents the number of movies that fall into each rectangular region of the grid. This makes dense areas more interpretable
+
+```{python}
+heatmap_scatter = alt.Chart(movies_cleaned).mark_rect().encode(
+    alt.X('Production_Budget', bin=alt.Bin(maxbins=60)),
+    alt.Y('Worldwide_Gross', bin=alt.Bin(maxbins=60)),
+    alt.Color('count()'),
+    alt.Tooltip('count()')
+).properties(
+    title="Binned Heatmap: Budget vs Gross"
+)
+heatmap_scatter
+```
+
+### Side-by-side Comparison
+
+Compare the raw scatterplot with the heatmap representation:
+
+
+```{python}
+saturated | heatmap_scatter
+```
+
+
+## Bivariate Analysis: Categorical vs Categorical
+
+
+When working with **two categorical variables**, bivariate analysis helps us understand how categories from one variable relate or are distributed across the other. For example, we might want to know how different **movie genres** are rated according to the **MPAA rating system**. Visualization techniques like grouped bar charts and faceted plots can reveal patterns, associations, or class imbalances.
+
+### Basic Faceted Bar Chart
+
+We begin by exploring how movies are rated (MPAA_Rating) across different genres (Major_Genre). A faceted bar chart allows us to visualize this relationship by plotting a bar chart **per genre**, helping to identify genre-specific rating distributions.
+
+```{python}
+alt.Chart(movies_cleaned).mark_bar().encode(
+    alt.X('count()'),
+    alt.Y('MPAA_Rating'),
+    alt.Color('MPAA_Rating')
+).facet(
+    'Major_Genre'
+)
+```
+
+### Vertical Faceting for Alignment
+
+Faceting horizontally can make comparisons across genres harder when the x-axis is misaligned. By specifying columns=1, we lay out the facets vertically, making it easier to compare counts across genres.
+
+```{python}
+alt.Chart(movies_cleaned).mark_bar().encode(
+    alt.X('count()'),
+    alt.Y('MPAA_Rating'),
+    alt.Color('MPAA_Rating')
+).facet(
+    'Major_Genre',
+    columns=1
+)
+```
+
+### Dependent vs Independent Axis Scaling
+
+By default, facet plots share the same x-axis scale (dependent scale), which allows for easier comparison across panels. However, when the number of observations varies greatly between genres, this shared scale can compress some charts.
+
+We can instead use independent x-axis scaling for each facet. This highlights the relative distribution within each genre.
+
+```{python}
+shared_scale = alt.Chart(movies_cleaned).mark_bar().encode(
+    alt.X('count()'),
+    alt.Y('MPAA_Rating'),
+    alt.Color('MPAA_Rating')
+).facet(
+    'Major_Genre',
+    columns=4
+)
+
+independent_scale = alt.Chart(movies_cleaned).mark_bar().encode(
+    alt.X('count()'),
+    alt.Y('MPAA_Rating'),
+    alt.Color('MPAA_Rating')
+).facet(
+    'Major_Genre',
+    columns=4
+).resolve_scale(x='independent')
+
+shared_scale | independent_scale
+```
+
+The left panel (shared scale) makes absolute comparisons between genres, while the right panel (independent scale) makes within-genre comparisons more readable.
+
+
+### Heatmaps
+
+Heatmaps are effective for visualizing the relationship between two **categorical variables** when the goal is to display **counts or frequency** of occurrences. They map **the number of observations** to **color**, providing an intuitive view of which category pairs are most or least common.
+
+We can enhance this basic representation by also using **marker size**, combining both **color intensity** and **circle area** to represent counts more effectively. This dual encoding can improve interpretation, especially when printed in grayscale or when there are subtle color differences.
+
+
+
+```{python}
+heatmap_color = alt.Chart(movies_cleaned).mark_rect().encode(
+    alt.X('MPAA_Rating'),
+    alt.Y('Major_Genre', sort='color'),
+    alt.Color('count()')
+).properties(
+    title="Heatmap with Color (Count of Movies)"
+)
+
+heatmap_size = alt.Chart(movies_cleaned).mark_circle().encode(
+    alt.X('MPAA_Rating'),
+    alt.Y('Major_Genre', sort='color'),
+    alt.Color('count()'),
+    alt.Size('count()')
+).properties(
+    title="Heatmap with Color + Size (Count of Movies)"
+)
+
+heatmap_color | heatmap_size
+```
+
+
+## Multivariate Analysis
+
+
+Multivariate analysis helps us understand the interactions and relationships among multiple variables simultaneously. In the context of numerical features, it is useful to explore pairwise distributions, correlations, and detect potential clusters or anomalies.
+
+When the number of variables is large, **repeated charts** such as histograms or scatter plot matrices help us summarize patterns efficiently and consistently across all numerical dimensions.
+
+### Repeated Histograms for Numerical Columns
+
+We first identify and isolate all numerical columns from the dataset. Then we repeat a histogram for each of these columns to understand the individual distributions. This overview is helpful to detect skewness, outliers, or binning decisions that affect how data is grouped visually.
+
+
+```{python}
+# Select only numerical columns
+numerical_columns = movies_cleaned.select_dtypes('number').columns.tolist()
+```
+
+```{python}
+alt.Chart(movies_cleaned).mark_bar().encode(
+    alt.X(alt.repeat(),type='quantitative',bin=alt.Bin(maxbins=30)),
+    alt.Y('count()')
+).properties(
+    width=150,
+    height=150
+).repeat(
+    numerical_columns,
+    columns=4
+)
+
+```
+
+### Scatter Plot Matrix (Pairplot)
+
+A scatter plot matrix shows the pairwise relationships between all numerical variables. This is a common exploratory tool to detect:
+
+- Correlations between variables
+- Outliers or clusters
+- Relationships useful for prediction models (e.g., to predict rating or budget)
+
+We focus especially on the plots below the diagonal, as they are not duplicated.
+```{python}
+alt.Chart(movies_cleaned).mark_point().encode(
+    alt.X(alt.repeat('column'),type='quantitative'),
+    alt.Y(alt.repeat('row'),type='quantitative'),
+    alt.Tooltip('Title:N')
+).properties(
+    width=100,
+    height=100
+).repeat(
+    column=numerical_columns,
+    row=numerical_columns
+)
+```
+
+### Heatmap Matrix
+When scatter plots become too saturated (many overlapping points), heatmaps offer a better alternative by binning the numeric values and encoding the **count** in **color intensity**.
+
+```{python}
+alt.Chart(movies_cleaned).mark_rect().encode(
+    alt.X(alt.repeat('column'),type='quantitative',bin=alt.Bin(maxbins=30)),
+    alt.Y(alt.repeat('row'),type='quantitative',bin=alt.Bin(maxbins=30)),
+    alt.Color('count()'),
+    alt.Tooltip('count()')
+).properties(
+    width=100,
+    height=100
+).repeat(
+    column=numerical_columns,
+    row=numerical_columns
+).resolve_scale(
+    color='independent'
+)
+```
+
+To gain deeper insights into the dataset, it's important to analyze how **numerical variables** behave across **different categories**. This type of multivariate analysis allows us to:
+
+- Compare distributions across categories
+- Detect outliers within categories
+- Observe central tendency (median, quartiles) and spread (range, IQR)
+
+Boxplots are particularly effective for this purpose. In the following visualizations, we explore these relationships by **repeating plots across combinations** of categorical and numerical features.
+
+### Filter Categorical Columns
+
+First, we select the relevant categorical columns, excluding identifiers and text-heavy variables like movie titles or director names.
+
+```{python}
+categorical_columns =  movies_cleaned.select_dtypes('object').columns.to_list()
+
+categorical_columns_remove = ['Title','Release_Date','Distributor','Director']
+
+categorical_filtered = [col for col in categorical_columns if col not in categorical_columns_remove]
+
+```
+
+
+### Repeated Boxplots: Categorical vs Numerical
+
+We repeat boxplots using combinations of categorical (rows) and numerical (columns) features. This matrix layout gives a clear visual overview of how numerical values are distributed within each category.
+
+```{python}
+alt.Chart(movies_cleaned).mark_boxplot().encode(
+    alt.X(alt.repeat('column'),type='quantitative'),
+    alt.Y(alt.repeat('row'),type='nominal'),
+    alt.Size('count()')
+).properties(
+    width=200,
+    height=200
+).repeat(
+    column=numerical_columns,
+    row=categorical_filtered
+)
+```
+
+### Faceted Boxplots
+
+For more focused analysis, we can facet the boxplots using a specific categorical variable like MPAA_Rating, and repeat the chart by different categorical rows. This lets us keep the numerical axis fixed while comparing how categories vary across different classes (e.g., movie ratings).
+
+
+```{python}
+alt.Chart(movies_cleaned).mark_boxplot().encode(
+    alt.X('Running_Time_min', type='quantitative'),
+    alt.Y(alt.repeat('row'),type='nominal'),
+    alt.Size('count()'),
+    alt.Tooltip('Title:N')
+).properties(
+    width=100,
+    height=100
+).facet(
+    column='MPAA_Rating'
+).repeat(
+    row=categorical_filtered
+)
+```
