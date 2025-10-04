@@ -8,12 +8,13 @@ website:
     left:
       - href: index.qmd
         text: Home
+      - href: midterm.qmd
+        text: MidTerm
       - href: lab1.qmd
         text: Laboratorios
       - href: eda.qmd
         text: Eda
-      - href: midterm.qmd
-        text: MidTerm
+      
 format:
   html:
     theme: cosmo
