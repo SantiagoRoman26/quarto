@@ -169,3 +169,8 @@ print("F1 Score:", f1_score(y_test, y_prep_pipe))
 ```{python}
 ConfusionMatrixDisplay.from_predictions(y_test,y_prep_pipe)
 ```
+### Curva ROC
+```{python}
+RocCurveDisplay.from_estimator(clf_pipe, X_test, y_test)
+plt.show()
+```
