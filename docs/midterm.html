@@ -3960,7 +3960,6 @@ var requirejs,require,define;(function(global,setTimeout){var req,s,head,baseEle
   <li><a href="#predecir-1" id="toc-predecir-1" class="nav-link" data-scroll-target="#predecir-1">Predecir</a></li>
   <li><a href="#evaluación" id="toc-evaluación" class="nav-link" data-scroll-target="#evaluación">Evaluación</a></li>
   <li><a href="#matriz-de-confusión" id="toc-matriz-de-confusión" class="nav-link" data-scroll-target="#matriz-de-confusión">Matriz de confusión</a></li>
-  <li><a href="#curva-roc" id="toc-curva-roc" class="nav-link" data-scroll-target="#curva-roc">Curva ROC</a></li>
   </ul></li>
   </ul></li>
   </ul>
@@ -4006,7 +4005,7 @@ var requirejs,require,define;(function(global,setTimeout){var req,s,head,baseEle
 <h2 class="anchored" data-anchor-id="problema-de-regresión">Problema de Regresión</h2>
 <section id="import-libraries" class="level3">
 <h3 class="anchored" data-anchor-id="import-libraries">Import libraries</h3>
-<div id="4905b8e3" class="cell" data-execution_count="1">
+<div id="d6278a40" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -4024,7 +4023,7 @@ var requirejs,require,define;(function(global,setTimeout){var req,s,head,baseEle
 </section>
 <section id="cargar-data" class="level3">
 <h3 class="anchored" data-anchor-id="cargar-data">Cargar Data</h3>
-<div id="744ae4d8" class="cell" data-execution_count="2">
+<div id="08110a80" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>housing <span class="op">=</span> fetch_california_housing()</span>
@@ -4039,7 +4038,7 @@ var requirejs,require,define;(function(global,setTimeout){var req,s,head,baseEle
 </section>
 <section id="split-data" class="level3">
 <h3 class="anchored" data-anchor-id="split-data">Split Data</h3>
-<div id="f529a684" class="cell" data-execution_count="3">
+<div id="340aa3b5" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>X_train, X_test, y_train, y_test <span class="op">=</span> train_test_split(X, y, test_size<span class="op">=</span><span class="fl">0.2</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -4048,7 +4047,7 @@ var requirejs,require,define;(function(global,setTimeout){var req,s,head,baseEle
 </section>
 <section id="crear-pipeline" class="level3">
 <h3 class="anchored" data-anchor-id="crear-pipeline">Crear Pipeline</h3>
-<div id="92bb933d" class="cell" data-execution_count="4">
+<div id="4b206b7a" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>reg_pipe <span class="op">=</span> Pipeline([</span>
@@ -4060,7 +4059,7 @@ var requirejs,require,define;(function(global,setTimeout){var req,s,head,baseEle
 </section>
 <section id="entrenar-modelo" class="level3">
 <h3 class="anchored" data-anchor-id="entrenar-modelo">Entrenar modelo</h3>
-<div id="49a47cbf" class="cell" data-execution_count="5">
+<div id="ffe06a8b" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>reg_pipe.fit(X_train, y_train)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -4620,7 +4619,7 @@ document.querySelectorAll('.fa-regular.fa-copy').forEach(function(element) {
 </section>
 <section id="predecir" class="level3">
 <h3 class="anchored" data-anchor-id="predecir">Predecir</h3>
-<div id="cb5edacd" class="cell" data-execution_count="6">
+<div id="36262f86" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>y_prep_pipe <span class="op">=</span> reg_pipe.predict(X_test)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -4629,7 +4628,7 @@ document.querySelectorAll('.fa-regular.fa-copy').forEach(function(element) {
 </section>
 <section id="resultados" class="level3">
 <h3 class="anchored" data-anchor-id="resultados">Resultados</h3>
-<div id="276df33b" class="cell" data-execution_count="7">
+<div id="bf4460df" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>train_sizes, train_scores, test_scores <span class="op">=</span> learning_curve(</span>
@@ -4655,7 +4654,8 @@ document.querySelectorAll('.fa-regular.fa-copy').forEach(function(element) {
 </div>
 </div>
 </div>
-<div id="6f9b4704" class="cell" data-execution_count="8">
+<p>La curva de aprendizaje se realizo tomando en cuenta el valor R2 el cual representa el porcentaje del comportamiento de los datos que el modelo logra entender. mostrando que el modelo aprende los patrones para poder hacer predicciones.</p>
+<div id="b51377c5" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
@@ -4675,7 +4675,8 @@ document.querySelectorAll('.fa-regular.fa-copy').forEach(function(element) {
 </div>
 </div>
 </div>
-<div id="ffe76c6a" class="cell" data-execution_count="9">
+<p>Esta grafica muestra la distribución de los datos al hacer la regresión lineal, donde se muestra los valores predichos y valores reales, además de una linea de referencia que muestra cuando los datos son predichos correctamente. En este caso los puntos se agrupan cerca de la linea de referencia aunque con cierta dispersión, lo cual muestra que el modelo acierta de forma general en gran parte de los datos, pero tiene errores en valores extremos.</p>
+<div id="911194aa" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>mae <span class="op">=</span> mean_absolute_error(y_test, y_prep_pipe)</span>
@@ -4688,7 +4689,8 @@ document.querySelectorAll('.fa-regular.fa-copy').forEach(function(element) {
 </section>
 <section id="prediccion" class="level3">
 <h3 class="anchored" data-anchor-id="prediccion">Prediccion</h3>
-<div id="955b92c2" class="cell" data-execution_count="10">
+<p>Se usa un nuevo registro para mostrar como funciona la prediccion.</p>
+<div id="5ca4c343" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>nuevo_registro <span class="op">=</span> pd.DataFrame([[</span>
@@ -4719,7 +4721,7 @@ document.querySelectorAll('.fa-regular.fa-copy').forEach(function(element) {
 <h2 class="anchored" data-anchor-id="problema-de-clasificación">Problema de Clasificación</h2>
 <section id="import-libraries-1" class="level3">
 <h3 class="anchored" data-anchor-id="import-libraries-1">Import libraries</h3>
-<div id="419d73e4" class="cell" data-execution_count="11">
+<div id="44151e35" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.datasets <span class="im">import</span> load_breast_cancer</span>
@@ -4733,7 +4735,7 @@ document.querySelectorAll('.fa-regular.fa-copy').forEach(function(element) {
 </section>
 <section id="load-data" class="level3">
 <h3 class="anchored" data-anchor-id="load-data">Load Data</h3>
-<div id="972f8bf7" class="cell" data-execution_count="12">
+<div id="734395de" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> <span class="st">&quot;https://raw.githubusercontent.com/jbrownlee/Datasets/master/pima-indians-diabetes.csv&quot;</span></span>
@@ -4754,7 +4756,7 @@ document.querySelectorAll('.fa-regular.fa-copy').forEach(function(element) {
 </section>
 <section id="split-data-1" class="level3">
 <h3 class="anchored" data-anchor-id="split-data-1">Split Data</h3>
-<div id="3be32e9f" class="cell" data-execution_count="13">
+<div id="576cc787" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>X_train, X_test, y_train, y_test <span class="op">=</span> train_test_split(X, y, test_size<span class="op">=</span><span class="fl">0.2</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -4763,7 +4765,7 @@ document.querySelectorAll('.fa-regular.fa-copy').forEach(function(element) {
 </section>
 <section id="crear-pipeline-1" class="level3">
 <h3 class="anchored" data-anchor-id="crear-pipeline-1">Crear Pipeline</h3>
-<div id="adb377f4" class="cell" data-execution_count="14">
+<div id="01cd6067" class="cell" data-execution_count="14">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>clf_pipe <span class="op">=</span> Pipeline([</span>
@@ -4775,7 +4777,7 @@ document.querySelectorAll('.fa-regular.fa-copy').forEach(function(element) {
 </section>
 <section id="entrenar-modelo-1" class="level3">
 <h3 class="anchored" data-anchor-id="entrenar-modelo-1">Entrenar modelo</h3>
-<div id="6be4f647" class="cell" data-execution_count="15">
+<div id="84a3d304" class="cell" data-execution_count="15">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>clf_pipe.fit(X_train, y_train)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -5385,7 +5387,7 @@ document.querySelectorAll('.fa-regular.fa-copy').forEach(function(element) {
 </section>
 <section id="predecir-1" class="level3">
 <h3 class="anchored" data-anchor-id="predecir-1">Predecir</h3>
-<div id="a40e4cea" class="cell" data-execution_count="16">
+<div id="439f4e52" class="cell" data-execution_count="16">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>y_prep_pipe <span class="op">=</span> clf_pipe.predict(X_test)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -5394,7 +5396,7 @@ document.querySelectorAll('.fa-regular.fa-copy').forEach(function(element) {
 </section>
 <section id="evaluación" class="level3">
 <h3 class="anchored" data-anchor-id="evaluación">Evaluación</h3>
-<div id="34877e8e" class="cell" data-execution_count="17">
+<div id="095b0f9e" class="cell" data-execution_count="17">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Accuracy:&quot;</span>, accuracy_score(y_test, y_prep_pipe))</span>
@@ -5412,7 +5414,7 @@ F1 Score: 0.64</code></pre>
 </section>
 <section id="matriz-de-confusión" class="level3">
 <h3 class="anchored" data-anchor-id="matriz-de-confusión">Matriz de confusión</h3>
-<div id="dfb526f2" class="cell" data-execution_count="18">
+<div id="f6cb66ca" class="cell" data-execution_count="18">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>ConfusionMatrixDisplay.from_predictions(y_test,y_prep_pipe)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -5425,10 +5427,8 @@ F1 Score: 0.64</code></pre>
 </div>
 </div>
 </div>
-</section>
-<section id="curva-roc" class="level3">
-<h3 class="anchored" data-anchor-id="curva-roc">Curva ROC</h3>
-<div id="40794333" class="cell" data-execution_count="19">
+<p>Esta matriz de confusion muestra la cantidad de datos que se llegan a predecir, asi se muestra que en realidad el modelo muestra lo siguiente: -45 casos fueron correctamente clasificados como No Diabetes -16 casos fueron correctamente identificados como Diabetes -11 casos presentaron Falsos Negativos -8 casos presentaron Falsos Positivos ### Curva ROC</p>
+<div id="a1ab2dd5" class="cell" data-execution_count="19">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>RocCurveDisplay.from_estimator(clf_pipe, X_test, y_test)</span>
@@ -5442,6 +5442,7 @@ F1 Score: 0.64</code></pre>
 </div>
 </div>
 </div>
+<p>La Curva ROC evalúa el rendimiento del modelo de clasificación mostrando la relación entre la Tasa de Verdaderos Positivos y la Tasa de Falsos Positivos en diferentes umbrales de decisión. El modelo obtiene un AUC de 0.83, lo que indica un 83% de probabilidad de clasificar correctamente un caso positivo por encima de uno negativo, siendo considerado un rendimiento bueno.</p>
 
 
 </section>

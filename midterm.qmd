@@ -73,7 +73,7 @@ plt.title("Curva de Aprendizaje")
 plt.legend()
 plt.show()
 ```
-
+La curva de aprendizaje se realizo tomando en cuenta el valor R2 el cual representa el porcentaje del comportamiento de los datos que el modelo logra entender. mostrando que el modelo aprende los patrones para poder hacer predicciones.
 ```{python}
 plt.figure(figsize=(10, 6))
 plt.scatter(y_test, y_prep_pipe, color='blue', alpha=0.7, s=10)
@@ -84,12 +84,13 @@ plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], color='red', li
 plt.legend(['Valores predichos', 'Línea de referencia'])
 plt.show()
 ```
+Esta grafica muestra la distribución de los datos al hacer la regresión lineal, donde se muestra los valores predichos y valores reales, además de una linea de referencia que muestra cuando los datos son predichos correctamente. En este caso los puntos se agrupan cerca de la linea de referencia aunque con cierta dispersión, lo cual muestra que el modelo acierta de forma general en gran parte de los datos, pero tiene errores en valores extremos.
 ```{python}
 mae = mean_absolute_error(y_test, y_prep_pipe)
 print(f"Error medio absoluto (MAE): {mae:.3f}")
 ```
 ### Prediccion
-
+Se usa un nuevo registro para mostrar como funciona la prediccion.
 ```{python}
 nuevo_registro = pd.DataFrame([[
     8.3252,   # MedInc - ingreso medio
@@ -169,8 +170,14 @@ print("F1 Score:", f1_score(y_test, y_prep_pipe))
 ```{python}
 ConfusionMatrixDisplay.from_predictions(y_test,y_prep_pipe)
 ```
+Esta matriz de confusion muestra la cantidad de datos que se llegan a predecir, asi se muestra que en realidad el modelo muestra lo siguiente:
+-45 casos fueron correctamente clasificados como No Diabetes 
+-16 casos fueron correctamente identificados como Diabetes
+-11 casos presentaron Falsos Negativos
+-8 casos presentaron Falsos Positivos 
 ### Curva ROC
 ```{python}
 RocCurveDisplay.from_estimator(clf_pipe, X_test, y_test)
 plt.show()
 ```
+La Curva ROC evalúa el rendimiento del modelo de clasificación mostrando la relación entre la Tasa de Verdaderos Positivos y la Tasa de Falsos Positivos en diferentes umbrales de decisión. El modelo obtiene un AUC  de 0.83, lo que indica un 83% de probabilidad de clasificar correctamente un caso positivo por encima de uno negativo, siendo considerado un rendimiento bueno.
