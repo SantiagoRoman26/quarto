@@ -171,10 +171,12 @@ print("F1 Score:", f1_score(y_test, y_prep_pipe))
 ConfusionMatrixDisplay.from_predictions(y_test,y_prep_pipe)
 ```
 Esta matriz de confusion muestra la cantidad de datos que se llegan a predecir, asi se muestra que en realidad el modelo muestra lo siguiente:
--45 casos fueron correctamente clasificados como No Diabetes 
--16 casos fueron correctamente identificados como Diabetes
--11 casos presentaron Falsos Negativos
--8 casos presentaron Falsos Positivos 
+
+- 45 casos fueron correctamente clasificados como No Diabetes 
+- 16 casos fueron correctamente identificados como Diabetes
+- 11 casos presentaron Falsos Negativos
+- 8 casos presentaron Falsos Positivos 
+
 ### Curva ROC
 ```{python}
 RocCurveDisplay.from_estimator(clf_pipe, X_test, y_test)
