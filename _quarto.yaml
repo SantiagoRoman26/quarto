@@ -12,6 +12,8 @@ website:
         text: Laboratorios
       - href: eda.qmd
         text: Eda
+      - href: midterm.qmd
+        text: MidTerm
 format:
   html:
     theme: cosmo

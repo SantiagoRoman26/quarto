@@ -3,9 +3,9 @@
 title: "Laboratorio 1"
 author: "Santiago Roman"
 date: "27-09-2025"
-<!-- format: 
+format: 
   html:
-    embed-resources: true  -->
+    embed-resources: true 
 ---
 
 
