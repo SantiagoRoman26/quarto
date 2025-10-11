@@ -1,5 +1,6 @@
 ---
 title: "laboratorio 2"
+code-fold: false
 ---
 
 # Import libraries 
@@ -139,7 +140,7 @@ categorical_transformer = OneHotEncoder(handle_unknown="ignore")
 ```
 Dividi los features relevantes del dataset en 3 tipos de variables: textuales, numericas y categoricas.
 Genere los 3 tipos de transformes para poder convertir los valores del dataset a datos que el modelo pueda entender
-# PIPELINE DE PREPROCESAMIENTO Y MODELADO
+# PREPROCESAMIENTO Y MODELADO
 
 ```{python}
 preprocessor = ColumnTransformer(
@@ -151,6 +152,10 @@ preprocessor = ColumnTransformer(
 )
 
 # Modelo base (simple y eficiente)
+
+```
+# Pipeline
+```{python}
 model = LogisticRegression(max_iter=300, multi_class="multinomial")
 
 pipeline = Pipeline(steps=[
@@ -162,13 +167,23 @@ Use LogisticRegression que permite combinar de manera eficiente texto vectorizad
 Aplique TF-IDF obtener una matriz numerica que permita facilitar el analisis de los valores para mi modelo 
 Use OneHotEncoder para convertir las variables categórica en columnas binarias
 Use StandardScaler para normalizar las diferentes escalas y que todas tengan el mismo peso en el modelo.
-# ENTRENAMIENTO DEL MODELO
+# Dividir los datos
 ```{python}
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.25, random_state=42, stratify=y
 )
 
+
+```
+# Fit
+
+```{python}
 pipeline.fit(X_train, y_train)
+
+```
+# Predict
+
+```{python}
 y_pred = pipeline.predict(X_test)
 ```
 # EVALUACIÓN DEL MODELO
