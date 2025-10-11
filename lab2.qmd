@@ -60,7 +60,9 @@ df['content_clean'] = df['content'].apply(clean_text)
 df.head()
 ```
 Elimine variables que no aportan información analítica (IDs, fechas, etc.).
+
 Elimine gran parte del ruido como "@,#,links", manteniendo solo palabras que pueden aportar valor semántico.
+
 # Selección del target
 ```{python}
 df['tipo_usuario'] = np.where(
@@ -70,6 +72,7 @@ df['tipo_usuario'] = np.where(
 )
 ```
 Primero verifico el tipo de usuario, como influencer o regular sgun el numero de seguidores que tiene
+
 ```{python}
 # Creamos un puntaje ponderado de interacción
 df['interaccion_score'] = (
@@ -83,7 +86,9 @@ df['interaccion_score'] = (
 umbral = df['interaccion_score'].quantile(0.75)
 df['nivel_interaccion'] = np.where(df['interaccion_score'] >= umbral, 'Alta', 'Baja')
 ```
+
 Obtengo un porcentaje del tipo de interacciones que suele tener el usuario, esto para saber un aproximado de cuanta actividad constante suele tener
+
 ```{python}
 def crear_perfil(row):
     if row['tipo_usuario'] == 'Influencer' and row['nivel_interaccion'] == 'Alta':
@@ -139,7 +144,8 @@ numeric_transformer = StandardScaler()
 categorical_transformer = OneHotEncoder(handle_unknown="ignore")
 ```
 Dividi los features relevantes del dataset en 3 tipos de variables: textuales, numericas y categoricas.
-Genere los 3 tipos de transformes para poder convertir los valores del dataset a datos que el modelo pueda entender
+
+Genere los 3 tipos de transformes para poder convertir los valores del dataset a datos que el modelo pueda entender.
 # PREPROCESAMIENTO Y MODELADO
 
 ```{python}
@@ -164,9 +170,13 @@ pipeline = Pipeline(steps=[
 ])
 ```
 Use LogisticRegression que permite combinar de manera eficiente texto vectorizado, variables numéricas y categóricas dentro de un mismo pipeline
+
 Aplique TF-IDF obtener una matriz numerica que permita facilitar el analisis de los valores para mi modelo 
+
 Use OneHotEncoder para convertir las variables categórica en columnas binarias
+
 Use StandardScaler para normalizar las diferentes escalas y que todas tengan el mismo peso en el modelo.
+
 # Dividir los datos
 ```{python}
 X_train, X_test, y_train, y_test = train_test_split(
