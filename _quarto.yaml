@@ -4,16 +4,21 @@ project:
 
 website:
   title: "Machine Learning"
-  navbar:
-    left:
-      - href: index.qmd
-        text: Home
-      - href: midterm.qmd
-        text: MidTerm
-      - href: lab1.qmd
-        text: Laboratorios
-      - href: eda.qmd
-        text: Eda
+  sidebar:
+    style: "docked"
+    search: true
+    contents:
+      - text: Home
+        href: index.qmd
+      - text: MidTerm
+        href: midterm.qmd
+      - section: "Laboratorios"
+        contents:
+          - lab1.qmd
+          - lab2.qmd
+      - text: Eda
+        href: eda.qmd
+        
       
 format:
   html:

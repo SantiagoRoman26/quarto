@@ -1,0 +1,202 @@
+---
+title: "laboratorio 2"
+---
+
+# Import libraries 
+
+```{python}
+import pandas as pd
+import numpy as np
+import re
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.preprocessing import OneHotEncoder
+
+from nltk.corpus import stopwords
+import nltk
+nltk.download('stopwords')
+
+```
+# Cargar dataset
+```{python}
+url = "https://raw.githubusercontent.com/erickedu85/dataset/refs/heads/master/tweets/tweets_totales_con_sentimiento_ml.csv"
+df = pd.read_csv(url)
+print(df.shape)
+df.head()
+```
+# Limpieza
+```{python}
+# Eliminamos columnas que no aportan valor predictivo (identificadores, URLs, fechas, imágenes, etc.)
+cols_utiles = [
+    'content', 'authorVerified', 'authorFollowers',
+    'hashtags_count', 'mentions_count', 'content_length',
+    'account_age_days'
+]
+
+df = df[cols_utiles].dropna()
+print("Dimensiones después de limpieza:", df.shape)
+
+# Limpieza de texto
+def clean_text(text):
+    text = re.sub(r"http\S+", "", text)       # eliminar URLs
+    text = re.sub(r"@\w+", "", text)          # eliminar menciones
+    text = re.sub(r"#\w+", "", text)          # eliminar hashtags
+    text = re.sub(r"[^A-Za-zÀ-ÿ\s]", "", text) # eliminar símbolos
+    text = text.lower().strip()
+    return text
+
+df['content_clean'] = df['content'].apply(clean_text)
+
+df.head()
+```
+Elimine variables que no aportan información analítica (IDs, fechas, etc.).
+Elimine gran parte del ruido como "@,#,links", manteniendo solo palabras que pueden aportar valor semántico.
+# Selección del target
+```{python}
+df['tipo_usuario'] = np.where(
+    (df['authorFollowers'] > 1000) | (df['authorVerified'] == True),
+    'Influencer',
+    'Regular'
+)
+```
+Primero verifico el tipo de usuario, como influencer o regular sgun el numero de seguidores que tiene
+```{python}
+# Creamos un puntaje ponderado de interacción
+df['interaccion_score'] = (
+    df['mentions_count']*0.4 +
+    df['hashtags_count']*0.3 +
+    df['content_length']*0.2 +
+    np.log1p(df['authorFollowers'])*0.1
+)
+
+# Definimos nivel alto o bajo según percentil 75
+umbral = df['interaccion_score'].quantile(0.75)
+df['nivel_interaccion'] = np.where(df['interaccion_score'] >= umbral, 'Alta', 'Baja')
+```
+Obtengo un porcentaje del tipo de interacciones que suele tener el usuario, esto para saber un aproximado de cuanta actividad constante suele tener
+```{python}
+def crear_perfil(row):
+    if row['tipo_usuario'] == 'Influencer' and row['nivel_interaccion'] == 'Alta':
+        return 'Influyente Activo'
+    elif row['tipo_usuario'] == 'Influencer' and row['nivel_interaccion'] == 'Baja':
+        return 'Influyente Pasivo'
+    elif row['tipo_usuario'] == 'Regular' and row['nivel_interaccion'] == 'Alta':
+        return 'Usuario Participativo'
+    else:
+        return 'Usuario Pasivo'
+
+df['perfil_usuario'] = df.apply(crear_perfil, axis=1)
+
+df['perfil_usuario'].value_counts()
+```
+El target perfil_usuario tiene 4 categorías que reflejan diferentes comportamientos comunicativos en la red:
+
+- Influyente Activo: usuarios con alto alcance y actividad alta.
+- Influyente Pasivo: usuarios con alcance alto pero poca interacción.
+- Usuario Participativo: personas comunes con mucha actividad.
+- Usuario Pasivo: cuentas regulares con baja actividad.
+
+# Selección de features relevantes
+```{python}
+features = [
+    'content_clean',          # texto procesado
+    'authorVerified',
+    'authorFollowers',
+    'hashtags_count',
+    'mentions_count',
+    'content_length',
+    'account_age_days'
+]
+
+target = 'perfil_usuario'
+
+X = df[features]
+X["authorVerified"] = X["authorVerified"].astype(int)
+y = df[target]
+
+```
+
+# PREPROCESAMIENTO DEL TEXTO (TF-IDF)
+
+```{python}
+text_features = ["content_clean"]
+numeric_features = ["authorFollowers", "hashtags_count", "mentions_count", "content_length", "account_age_days"]
+categorical_features = ["authorVerified"]
+
+spanish_stopwords = stopwords.words('spanish')
+text_transformer = TfidfVectorizer(stop_words=spanish_stopwords)
+numeric_transformer = StandardScaler()
+categorical_transformer = OneHotEncoder(handle_unknown="ignore")
+```
+Dividi los features relevantes del dataset en 3 tipos de variables: textuales, numericas y categoricas.
+Genere los 3 tipos de transformes para poder convertir los valores del dataset a datos que el modelo pueda entender
+# PIPELINE DE PREPROCESAMIENTO Y MODELADO
+
+```{python}
+preprocessor = ColumnTransformer(
+    transformers=[
+        ("text", text_transformer, "content_clean"),
+        ("num", numeric_transformer, numeric_features),
+        ("cat", categorical_transformer, categorical_features)
+    ]
+)
+
+# Modelo base (simple y eficiente)
+model = LogisticRegression(max_iter=300, multi_class="multinomial")
+
+pipeline = Pipeline(steps=[
+    ("preprocessor", preprocessor),
+    ("classifier", model)
+])
+```
+Use LogisticRegression que permite combinar de manera eficiente texto vectorizado, variables numéricas y categóricas dentro de un mismo pipeline
+Aplique TF-IDF obtener una matriz numerica que permita facilitar el analisis de los valores para mi modelo 
+Use OneHotEncoder para convertir las variables categórica en columnas binarias
+Use StandardScaler para normalizar las diferentes escalas y que todas tengan el mismo peso en el modelo.
+# ENTRENAMIENTO DEL MODELO
+```{python}
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25, random_state=42, stratify=y
+)
+
+pipeline.fit(X_train, y_train)
+y_pred = pipeline.predict(X_test)
+```
+# EVALUACIÓN DEL MODELO
+```{python}
+print("📊 Reporte de Clasificación:\n")
+print(classification_report(y_test, y_pred))
+
+cm = confusion_matrix(y_test, y_pred, labels=pipeline.classes_)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=pipeline.classes_)
+disp.plot(cmap="Blues", xticks_rotation=45)
+plt.title("Matriz de Confusión - Clasificación de Perfiles de Usuario")
+plt.show()
+```
+
+```{python}
+# Comparar distribuciones reales y predichas
+fig, ax = plt.subplots(1, 2, figsize=(12,5))
+
+sns.countplot(y_test, ax=ax[0], palette="pastel")
+ax[0].set_title("Distribución Real de Clases")
+ax[0].set_xlabel("Perfil de Usuario")
+ax[0].set_ylabel("Cantidad")
+
+sns.countplot(y_pred, ax=ax[1], palette="pastel")
+ax[1].set_title("Distribución Predicha por el Modelo")
+ax[1].set_xlabel("Perfil de Usuario")
+ax[1].set_ylabel("Cantidad")
+
+plt.tight_layout()
+plt.show()
+```
