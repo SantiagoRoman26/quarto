@@ -146,6 +146,7 @@ categorical_transformer = OneHotEncoder(handle_unknown="ignore")
 Dividi los features relevantes del dataset en 3 tipos de variables: textuales, numericas y categoricas.
 
 Genere los 3 tipos de transformes para poder convertir los valores del dataset a datos que el modelo pueda entender.
+
 # PREPROCESAMIENTO Y MODELADO
 
 ```{python}

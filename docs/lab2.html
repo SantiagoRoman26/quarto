@@ -200,9 +200,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#import-libraries" id="toc-import-libraries" class="nav-link active" data-scroll-target="#import-libraries">Import libraries</a></li>
   <li><a href="#cargar-dataset" id="toc-cargar-dataset" class="nav-link" data-scroll-target="#cargar-dataset">Cargar dataset</a></li>
   <li><a href="#limpieza" id="toc-limpieza" class="nav-link" data-scroll-target="#limpieza">Limpieza</a></li>
+  <li><a href="#selección-del-target" id="toc-selección-del-target" class="nav-link" data-scroll-target="#selección-del-target">Selección del target</a></li>
   <li><a href="#selección-de-features-relevantes" id="toc-selección-de-features-relevantes" class="nav-link" data-scroll-target="#selección-de-features-relevantes">Selección de features relevantes</a></li>
   <li><a href="#preprocesamiento-del-texto-tf-idf" id="toc-preprocesamiento-del-texto-tf-idf" class="nav-link" data-scroll-target="#preprocesamiento-del-texto-tf-idf">PREPROCESAMIENTO DEL TEXTO (TF-IDF)</a></li>
+  <li><a href="#preprocesamiento-y-modelado" id="toc-preprocesamiento-y-modelado" class="nav-link" data-scroll-target="#preprocesamiento-y-modelado">PREPROCESAMIENTO Y MODELADO</a></li>
   <li><a href="#pipeline" id="toc-pipeline" class="nav-link" data-scroll-target="#pipeline">Pipeline</a></li>
+  <li><a href="#dividir-los-datos" id="toc-dividir-los-datos" class="nav-link" data-scroll-target="#dividir-los-datos">Dividir los datos</a></li>
   <li><a href="#fit" id="toc-fit" class="nav-link" data-scroll-target="#fit">Fit</a></li>
   <li><a href="#predict" id="toc-predict" class="nav-link" data-scroll-target="#predict">Predict</a></li>
   <li><a href="#evaluación-del-modelo" id="toc-evaluación-del-modelo" class="nav-link" data-scroll-target="#evaluación-del-modelo">EVALUACIÓN DEL MODELO</a></li>
@@ -233,7 +236,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="import-libraries" class="level1">
 <h1>Import libraries</h1>
-<div id="ee548daf" class="cell" data-execution_count="1">
+<div id="cc69a726" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> re</span>
@@ -258,14 +261,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 [nltk_data]     C:\Users\StarMedia\AppData\Roaming\nltk_data...
 [nltk_data]   Package stopwords is already up-to-date!</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="1">
+<div class="cell-output cell-output-display" data-execution_count="16">
 <pre><code>True</code></pre>
 </div>
 </div>
 </section>
 <section id="cargar-dataset" class="level1">
 <h1>Cargar dataset</h1>
-<div id="9dc64a57" class="cell" data-execution_count="2">
+<div id="515ab444" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/erickedu85/dataset/refs/heads/master/tweets/tweets_totales_con_sentimiento_ml.csv"</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(url)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df.shape)</span>
@@ -273,7 +276,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-stdout">
 <pre><code>(158873, 26)</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="2">
+<div class="cell-output cell-output-display" data-execution_count="17">
 <div>
 
 
@@ -435,7 +438,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="limpieza" class="level1">
 <h1>Limpieza</h1>
-<div id="dfc4ffbe" class="cell" data-execution_count="3">
+<div id="00e0e8cb" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Eliminamos columnas que no aportan valor predictivo (identificadores, URLs, fechas, imágenes, etc.)</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>cols_utiles <span class="op">=</span> [</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'content'</span>, <span class="st">'authorVerified'</span>, <span class="st">'authorFollowers'</span>,</span>
@@ -461,7 +464,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-stdout">
 <pre><code>Dimensiones después de limpieza: (158873, 7)</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="3">
+<div class="cell-output cell-output-display" data-execution_count="18">
 <div>
 
 
@@ -541,8 +544,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>Elimine variables que no aportan información analítica (IDs, fechas, etc.). Elimine gran parte del ruido como “@,#,links”, manteniendo solo palabras que pueden aportar valor semántico. # Selección del target</p>
-<div id="231d39d1" class="cell" data-execution_count="4">
+<p>Elimine variables que no aportan información analítica (IDs, fechas, etc.).</p>
+<p>Elimine gran parte del ruido como “@,#,links”, manteniendo solo palabras que pueden aportar valor semántico.</p>
+</section>
+<section id="selección-del-target" class="level1">
+<h1>Selección del target</h1>
+<div id="a36ca26b" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'tipo_usuario'</span>] <span class="op">=</span> np.where(</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    (df[<span class="st">'authorFollowers'</span>] <span class="op">&gt;</span> <span class="dv">1000</span>) <span class="op">|</span> (df[<span class="st">'authorVerified'</span>] <span class="op">==</span> <span class="va">True</span>),</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Influencer'</span>,</span>
@@ -550,7 +557,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Primero verifico el tipo de usuario, como influencer o regular sgun el numero de seguidores que tiene</p>
-<div id="eeed8755" class="cell" data-execution_count="5">
+<div id="b4cc0f01" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Creamos un puntaje ponderado de interacción</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'interaccion_score'</span>] <span class="op">=</span> (</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">'mentions_count'</span>]<span class="op">*</span><span class="fl">0.4</span> <span class="op">+</span></span>
@@ -564,7 +571,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'nivel_interaccion'</span>] <span class="op">=</span> np.where(df[<span class="st">'interaccion_score'</span>] <span class="op">&gt;=</span> umbral, <span class="st">'Alta'</span>, <span class="st">'Baja'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Obtengo un porcentaje del tipo de interacciones que suele tener el usuario, esto para saber un aproximado de cuanta actividad constante suele tener</p>
-<div id="18e2eb5f" class="cell" data-execution_count="6">
+<div id="c3cdd342" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> crear_perfil(row):</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> row[<span class="st">'tipo_usuario'</span>] <span class="op">==</span> <span class="st">'Influencer'</span> <span class="kw">and</span> row[<span class="st">'nivel_interaccion'</span>] <span class="op">==</span> <span class="st">'Alta'</span>:</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">'Influyente Activo'</span></span>
@@ -578,7 +585,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'perfil_usuario'</span>] <span class="op">=</span> df.<span class="bu">apply</span>(crear_perfil, axis<span class="op">=</span><span class="dv">1</span>)</span>
 <span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'perfil_usuario'</span>].value_counts()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="6">
+<div class="cell-output cell-output-display" data-execution_count="21">
 <pre><code>perfil_usuario
 Usuario Pasivo           111449
 Usuario Participativo     36881
@@ -597,7 +604,7 @@ Name: count, dtype: int64</code></pre>
 </section>
 <section id="selección-de-features-relevantes" class="level1">
 <h1>Selección de features relevantes</h1>
-<div id="1a28b570" class="cell" data-execution_count="7">
+<div id="4fc78aa9" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>features <span class="op">=</span> [</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'content_clean'</span>,          <span class="co"># texto procesado</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'authorVerified'</span>,</span>
@@ -614,7 +621,7 @@ Name: count, dtype: int64</code></pre>
 <span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>X[<span class="st">"authorVerified"</span>] <span class="op">=</span> X[<span class="st">"authorVerified"</span>].astype(<span class="bu">int</span>)</span>
 <span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> df[target]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>C:\Users\StarMedia\AppData\Local\Temp\ipykernel_3144\3166960640.py:14: SettingWithCopyWarning: 
+<pre><code>C:\Users\StarMedia\AppData\Local\Temp\ipykernel_16228\3166960640.py:14: SettingWithCopyWarning: 
 A value is trying to be set on a copy of a slice from a DataFrame.
 Try using .loc[row_indexer,col_indexer] = value instead
 
@@ -625,7 +632,7 @@ See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stab
 </section>
 <section id="preprocesamiento-del-texto-tf-idf" class="level1">
 <h1>PREPROCESAMIENTO DEL TEXTO (TF-IDF)</h1>
-<div id="2658b924" class="cell" data-execution_count="8">
+<div id="7a4da27b" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>text_features <span class="op">=</span> [<span class="st">"content_clean"</span>]</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>numeric_features <span class="op">=</span> [<span class="st">"authorFollowers"</span>, <span class="st">"hashtags_count"</span>, <span class="st">"mentions_count"</span>, <span class="st">"content_length"</span>, <span class="st">"account_age_days"</span>]</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>categorical_features <span class="op">=</span> [<span class="st">"authorVerified"</span>]</span>
@@ -635,8 +642,12 @@ See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stab
 <span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>numeric_transformer <span class="op">=</span> StandardScaler()</span>
 <span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>categorical_transformer <span class="op">=</span> OneHotEncoder(handle_unknown<span class="op">=</span><span class="st">"ignore"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>Dividi los features relevantes del dataset en 3 tipos de variables: textuales, numericas y categoricas. Genere los 3 tipos de transformes para poder convertir los valores del dataset a datos que el modelo pueda entender # PREPROCESAMIENTO Y MODELADO</p>
-<div id="58053fe6" class="cell" data-execution_count="9">
+<p>Dividi los features relevantes del dataset en 3 tipos de variables: textuales, numericas y categoricas.</p>
+<p>Genere los 3 tipos de transformes para poder convertir los valores del dataset a datos que el modelo pueda entender.</p>
+</section>
+<section id="preprocesamiento-y-modelado" class="level1">
+<h1>PREPROCESAMIENTO Y MODELADO</h1>
+<div id="b7540227" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>preprocessor <span class="op">=</span> ColumnTransformer(</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    transformers<span class="op">=</span>[</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>        (<span class="st">"text"</span>, text_transformer, <span class="st">"content_clean"</span>),</span>
@@ -650,7 +661,7 @@ See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stab
 </section>
 <section id="pipeline" class="level1">
 <h1>Pipeline</h1>
-<div id="449e0603" class="cell" data-execution_count="10">
+<div id="56feec16" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> LogisticRegression(max_iter<span class="op">=</span><span class="dv">300</span>, multi_class<span class="op">=</span><span class="st">"multinomial"</span>)</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>pipeline <span class="op">=</span> Pipeline(steps<span class="op">=</span>[</span>
@@ -658,8 +669,14 @@ See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stab
 <span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"classifier"</span>, model)</span>
 <span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>Use LogisticRegression que permite combinar de manera eficiente texto vectorizado, variables numéricas y categóricas dentro de un mismo pipeline Aplique TF-IDF obtener una matriz numerica que permita facilitar el analisis de los valores para mi modelo Use OneHotEncoder para convertir las variables categórica en columnas binarias Use StandardScaler para normalizar las diferentes escalas y que todas tengan el mismo peso en el modelo. # Dividir los datos</p>
-<div id="6df630ec" class="cell" data-execution_count="11">
+<p>Use LogisticRegression que permite combinar de manera eficiente texto vectorizado, variables numéricas y categóricas dentro de un mismo pipeline</p>
+<p>Aplique TF-IDF obtener una matriz numerica que permita facilitar el analisis de los valores para mi modelo</p>
+<p>Use OneHotEncoder para convertir las variables categórica en columnas binarias</p>
+<p>Use StandardScaler para normalizar las diferentes escalas y que todas tengan el mismo peso en el modelo.</p>
+</section>
+<section id="dividir-los-datos" class="level1">
+<h1>Dividir los datos</h1>
+<div id="bb4f2b6c" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>X_train, X_test, y_train, y_test <span class="op">=</span> train_test_split(</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    X, y, test_size<span class="op">=</span><span class="fl">0.25</span>, random_state<span class="op">=</span><span class="dv">42</span>, stratify<span class="op">=</span>y</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -667,14 +684,14 @@ See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stab
 </section>
 <section id="fit" class="level1">
 <h1>Fit</h1>
-<div id="e94f411d" class="cell" data-execution_count="12">
+<div id="90779a23" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>pipeline.fit(X_train, y_train)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>c:\respaldo para reparacion de disco\RESPALDO\StarMedia\desarrollo\Maestria Inteligencia artificial\Clase Inicial\.venv\lib\site-packages\sklearn\linear_model\_logistic.py:1272: FutureWarning: 'multi_class' was deprecated in version 1.5 and will be removed in 1.8. From then on, it will always use 'multinomial'. Leave it to its default value to avoid this warning.
   warnings.warn(</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="12">
-<style>#sk-container-id-1 {
+<div class="cell-output cell-output-display" data-execution_count="27">
+<style>#sk-container-id-2 {
   /* Definition of color scheme common for light and dark mode */
   --sklearn-color-text: #000;
   --sklearn-color-text-muted: #666;
@@ -705,15 +722,15 @@ See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stab
   }
 }
 
-#sk-container-id-1 {
+#sk-container-id-2 {
   color: var(--sklearn-color-text);
 }
 
-#sk-container-id-1 pre {
+#sk-container-id-2 pre {
   padding: 0;
 }
 
-#sk-container-id-1 input.sk-hidden--visually {
+#sk-container-id-2 input.sk-hidden--visually {
   border: 0;
   clip: rect(1px 1px 1px 1px);
   clip: rect(1px, 1px, 1px, 1px);
@@ -725,7 +742,7 @@ See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stab
   width: 1px;
 }
 
-#sk-container-id-1 div.sk-dashed-wrapped {
+#sk-container-id-2 div.sk-dashed-wrapped {
   border: 1px dashed var(--sklearn-color-line);
   margin: 0 0.4em 0.5em 0.4em;
   box-sizing: border-box;
@@ -733,7 +750,7 @@ See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stab
   background-color: var(--sklearn-color-background);
 }
 
-#sk-container-id-1 div.sk-container {
+#sk-container-id-2 div.sk-container {
   /* jupyter's `normalize.less` sets `[hidden] { display: none; }`
      but bootstrap.min.css set `[hidden] { display: none !important; }`
      so we also need the `!important` here to be able to override the
@@ -743,7 +760,7 @@ See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stab
   position: relative;
 }
 
-#sk-container-id-1 div.sk-text-repr-fallback {
+#sk-container-id-2 div.sk-text-repr-fallback {
   display: none;
 }
 
@@ -759,14 +776,14 @@ div.sk-item {
 
 /* Parallel-specific style estimator block */
 
-#sk-container-id-1 div.sk-parallel-item::after {
+#sk-container-id-2 div.sk-parallel-item::after {
   content: "";
   width: 100%;
   border-bottom: 2px solid var(--sklearn-color-text-on-default-background);
   flex-grow: 1;
 }
 
-#sk-container-id-1 div.sk-parallel {
+#sk-container-id-2 div.sk-parallel {
   display: flex;
   align-items: stretch;
   justify-content: center;
@@ -774,28 +791,28 @@ div.sk-item {
   position: relative;
 }
 
-#sk-container-id-1 div.sk-parallel-item {
+#sk-container-id-2 div.sk-parallel-item {
   display: flex;
   flex-direction: column;
 }
 
-#sk-container-id-1 div.sk-parallel-item:first-child::after {
+#sk-container-id-2 div.sk-parallel-item:first-child::after {
   align-self: flex-end;
   width: 50%;
 }
 
-#sk-container-id-1 div.sk-parallel-item:last-child::after {
+#sk-container-id-2 div.sk-parallel-item:last-child::after {
   align-self: flex-start;
   width: 50%;
 }
 
-#sk-container-id-1 div.sk-parallel-item:only-child::after {
+#sk-container-id-2 div.sk-parallel-item:only-child::after {
   width: 0;
 }
 
 /* Serial-specific style estimator block */
 
-#sk-container-id-1 div.sk-serial {
+#sk-container-id-2 div.sk-serial {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -813,14 +830,14 @@ clickable and can be expanded/collapsed.
 
 /* Pipeline and ColumnTransformer style (default) */
 
-#sk-container-id-1 div.sk-toggleable {
+#sk-container-id-2 div.sk-toggleable {
   /* Default theme specific background. It is overwritten whether we have a
   specific estimator or a Pipeline/ColumnTransformer */
   background-color: var(--sklearn-color-background);
 }
 
 /* Toggleable label */
-#sk-container-id-1 label.sk-toggleable__label {
+#sk-container-id-2 label.sk-toggleable__label {
   cursor: pointer;
   display: flex;
   width: 100%;
@@ -833,13 +850,13 @@ clickable and can be expanded/collapsed.
   gap: 0.5em;
 }
 
-#sk-container-id-1 label.sk-toggleable__label .caption {
+#sk-container-id-2 label.sk-toggleable__label .caption {
   font-size: 0.6rem;
   font-weight: lighter;
   color: var(--sklearn-color-text-muted);
 }
 
-#sk-container-id-1 label.sk-toggleable__label-arrow:before {
+#sk-container-id-2 label.sk-toggleable__label-arrow:before {
   /* Arrow on the left of the label */
   content: "▸";
   float: left;
@@ -847,25 +864,25 @@ clickable and can be expanded/collapsed.
   color: var(--sklearn-color-icon);
 }
 
-#sk-container-id-1 label.sk-toggleable__label-arrow:hover:before {
+#sk-container-id-2 label.sk-toggleable__label-arrow:hover:before {
   color: var(--sklearn-color-text);
 }
 
 /* Toggleable content - dropdown */
 
-#sk-container-id-1 div.sk-toggleable__content {
+#sk-container-id-2 div.sk-toggleable__content {
   display: none;
   text-align: left;
   /* unfitted */
   background-color: var(--sklearn-color-unfitted-level-0);
 }
 
-#sk-container-id-1 div.sk-toggleable__content.fitted {
+#sk-container-id-2 div.sk-toggleable__content.fitted {
   /* fitted */
   background-color: var(--sklearn-color-fitted-level-0);
 }
 
-#sk-container-id-1 div.sk-toggleable__content pre {
+#sk-container-id-2 div.sk-toggleable__content pre {
   margin: 0.2em;
   border-radius: 0.25em;
   color: var(--sklearn-color-text);
@@ -873,79 +890,79 @@ clickable and can be expanded/collapsed.
   background-color: var(--sklearn-color-unfitted-level-0);
 }
 
-#sk-container-id-1 div.sk-toggleable__content.fitted pre {
+#sk-container-id-2 div.sk-toggleable__content.fitted pre {
   /* unfitted */
   background-color: var(--sklearn-color-fitted-level-0);
 }
 
-#sk-container-id-1 input.sk-toggleable__control:checked~div.sk-toggleable__content {
+#sk-container-id-2 input.sk-toggleable__control:checked~div.sk-toggleable__content {
   /* Expand drop-down */
   display: block;
   width: 100%;
   overflow: visible;
 }
 
-#sk-container-id-1 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {
+#sk-container-id-2 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {
   content: "▾";
 }
 
 /* Pipeline/ColumnTransformer-specific style */
 
-#sk-container-id-1 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {
+#sk-container-id-2 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {
   color: var(--sklearn-color-text);
   background-color: var(--sklearn-color-unfitted-level-2);
 }
 
-#sk-container-id-1 div.sk-label.fitted input.sk-toggleable__control:checked~label.sk-toggleable__label {
+#sk-container-id-2 div.sk-label.fitted input.sk-toggleable__control:checked~label.sk-toggleable__label {
   background-color: var(--sklearn-color-fitted-level-2);
 }
 
 /* Estimator-specific style */
 
 /* Colorize estimator box */
-#sk-container-id-1 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {
+#sk-container-id-2 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {
   /* unfitted */
   background-color: var(--sklearn-color-unfitted-level-2);
 }
 
-#sk-container-id-1 div.sk-estimator.fitted input.sk-toggleable__control:checked~label.sk-toggleable__label {
+#sk-container-id-2 div.sk-estimator.fitted input.sk-toggleable__control:checked~label.sk-toggleable__label {
   /* fitted */
   background-color: var(--sklearn-color-fitted-level-2);
 }
 
-#sk-container-id-1 div.sk-label label.sk-toggleable__label,
-#sk-container-id-1 div.sk-label label {
+#sk-container-id-2 div.sk-label label.sk-toggleable__label,
+#sk-container-id-2 div.sk-label label {
   /* The background is the default theme color */
   color: var(--sklearn-color-text-on-default-background);
 }
 
 /* On hover, darken the color of the background */
-#sk-container-id-1 div.sk-label:hover label.sk-toggleable__label {
+#sk-container-id-2 div.sk-label:hover label.sk-toggleable__label {
   color: var(--sklearn-color-text);
   background-color: var(--sklearn-color-unfitted-level-2);
 }
 
 /* Label box, darken color on hover, fitted */
-#sk-container-id-1 div.sk-label.fitted:hover label.sk-toggleable__label.fitted {
+#sk-container-id-2 div.sk-label.fitted:hover label.sk-toggleable__label.fitted {
   color: var(--sklearn-color-text);
   background-color: var(--sklearn-color-fitted-level-2);
 }
 
 /* Estimator label */
 
-#sk-container-id-1 div.sk-label label {
+#sk-container-id-2 div.sk-label label {
   font-family: monospace;
   font-weight: bold;
   display: inline-block;
   line-height: 1.2em;
 }
 
-#sk-container-id-1 div.sk-label-container {
+#sk-container-id-2 div.sk-label-container {
   text-align: center;
 }
 
 /* Estimator-specific */
-#sk-container-id-1 div.sk-estimator {
+#sk-container-id-2 div.sk-estimator {
   font-family: monospace;
   border: 1px dotted var(--sklearn-color-border-box);
   border-radius: 0.25em;
@@ -955,18 +972,18 @@ clickable and can be expanded/collapsed.
   background-color: var(--sklearn-color-unfitted-level-0);
 }
 
-#sk-container-id-1 div.sk-estimator.fitted {
+#sk-container-id-2 div.sk-estimator.fitted {
   /* fitted */
   background-color: var(--sklearn-color-fitted-level-0);
 }
 
 /* on hover */
-#sk-container-id-1 div.sk-estimator:hover {
+#sk-container-id-2 div.sk-estimator:hover {
   /* unfitted */
   background-color: var(--sklearn-color-unfitted-level-2);
 }
 
-#sk-container-id-1 div.sk-estimator.fitted:hover {
+#sk-container-id-2 div.sk-estimator.fitted:hover {
   /* fitted */
   background-color: var(--sklearn-color-fitted-level-2);
 }
@@ -1054,7 +1071,7 @@ div.sk-label-container:hover .sk-estimator-doc-link.fitted:hover,
 
 /* "?"-specific style due to the `<a>` HTML tag */
 
-#sk-container-id-1 a.estimator_doc_link {
+#sk-container-id-2 a.estimator_doc_link {
   float: right;
   font-size: 1rem;
   line-height: 1em;
@@ -1069,21 +1086,21 @@ div.sk-label-container:hover .sk-estimator-doc-link.fitted:hover,
   border: var(--sklearn-color-unfitted-level-1) 1pt solid;
 }
 
-#sk-container-id-1 a.estimator_doc_link.fitted {
+#sk-container-id-2 a.estimator_doc_link.fitted {
   /* fitted */
   border: var(--sklearn-color-fitted-level-1) 1pt solid;
   color: var(--sklearn-color-fitted-level-1);
 }
 
 /* On hover */
-#sk-container-id-1 a.estimator_doc_link:hover {
+#sk-container-id-2 a.estimator_doc_link:hover {
   /* unfitted */
   background-color: var(--sklearn-color-unfitted-level-3);
   color: var(--sklearn-color-background);
   text-decoration: none;
 }
 
-#sk-container-id-1 a.estimator_doc_link.fitted:hover {
+#sk-container-id-2 a.estimator_doc_link.fitted:hover {
   /* fitted */
   background-color: var(--sklearn-color-fitted-level-3);
 }
@@ -1151,7 +1168,7 @@ div.sk-label-container:hover .sk-estimator-doc-link.fitted:hover,
     height: 14px;
     cursor: pointer;
 }
-</style><div id="sk-container-id-1" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>Pipeline(steps=[('preprocessor',
+</style><div id="sk-container-id-2" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>Pipeline(steps=[('preprocessor',
                  ColumnTransformer(transformers=[('text',
                                                   TfidfVectorizer(stop_words=['de',
                                                                               'la',
@@ -1194,7 +1211,7 @@ div.sk-label-container:hover .sk-estimator-doc-link.fitted:hover,
                                                   OneHotEncoder(handle_unknown='ignore'),
                                                   ['authorVerified'])])),
                 ('classifier',
-                 LogisticRegression(max_iter=300, multi_class='multinomial'))])</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br>On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden=""><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-1" type="checkbox"><label for="sk-estimator-id-1" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>Pipeline</div></div><div><a class="sk-estimator-doc-link fitted" rel="noreferrer" target="_blank" href="https://scikit-learn.org/1.7/modules/generated/sklearn.pipeline.Pipeline.html">?<span>Documentation for Pipeline</span></a><span class="sk-estimator-doc-link fitted">i<span>Fitted</span></span></div></label><div class="sk-toggleable__content fitted" data-param-prefix="">
+                 LogisticRegression(max_iter=300, multi_class='multinomial'))])</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br>On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden=""><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-10" type="checkbox"><label for="sk-estimator-id-10" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>Pipeline</div></div><div><a class="sk-estimator-doc-link fitted" rel="noreferrer" target="_blank" href="https://scikit-learn.org/1.7/modules/generated/sklearn.pipeline.Pipeline.html">?<span>Documentation for Pipeline</span></a><span class="sk-estimator-doc-link fitted">i<span>Fitted</span></span></div></label><div class="sk-toggleable__content fitted" data-param-prefix="">
         <div class="estimator-table">
             <details>
                 <summary>Parameters</summary>
@@ -1226,7 +1243,7 @@ div.sk-label-container:hover .sk-estimator-doc-link.fitted:hover,
 
             </details>
         </div>
-    </div></div></div><div class="sk-serial"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-2" type="checkbox"><label for="sk-estimator-id-2" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>preprocessor: ColumnTransformer</div></div><div><a class="sk-estimator-doc-link fitted" rel="noreferrer" target="_blank" href="https://scikit-learn.org/1.7/modules/generated/sklearn.compose.ColumnTransformer.html">?<span>Documentation for preprocessor: ColumnTransformer</span></a></div></label><div class="sk-toggleable__content fitted" data-param-prefix="preprocessor__">
+    </div></div></div><div class="sk-serial"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-11" type="checkbox"><label for="sk-estimator-id-11" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>preprocessor: ColumnTransformer</div></div><div><a class="sk-estimator-doc-link fitted" rel="noreferrer" target="_blank" href="https://scikit-learn.org/1.7/modules/generated/sklearn.compose.ColumnTransformer.html">?<span>Documentation for preprocessor: ColumnTransformer</span></a></div></label><div class="sk-toggleable__content fitted" data-param-prefix="preprocessor__">
         <div class="estimator-table">
             <details>
                 <summary>Parameters</summary>
@@ -1278,7 +1295,7 @@ div.sk-label-container:hover .sk-estimator-doc-link.fitted:hover,
 
             </details>
         </div>
-    </div></div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-3" type="checkbox"><label for="sk-estimator-id-3" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>text</div></div></label><div class="sk-toggleable__content fitted" data-param-prefix="preprocessor__text__"><pre>content_clean</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-4" type="checkbox"><label for="sk-estimator-id-4" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>TfidfVectorizer</div></div><div><a class="sk-estimator-doc-link fitted" rel="noreferrer" target="_blank" href="https://scikit-learn.org/1.7/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html">?<span>Documentation for TfidfVectorizer</span></a></div></label><div class="sk-toggleable__content fitted" data-param-prefix="preprocessor__text__">
+    </div></div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-12" type="checkbox"><label for="sk-estimator-id-12" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>text</div></div></label><div class="sk-toggleable__content fitted" data-param-prefix="preprocessor__text__"><pre>content_clean</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-13" type="checkbox"><label for="sk-estimator-id-13" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>TfidfVectorizer</div></div><div><a class="sk-estimator-doc-link fitted" rel="noreferrer" target="_blank" href="https://scikit-learn.org/1.7/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html">?<span>Documentation for TfidfVectorizer</span></a></div></label><div class="sk-toggleable__content fitted" data-param-prefix="preprocessor__text__">
         <div class="estimator-table">
             <details>
                 <summary>Parameters</summary>
@@ -1395,7 +1412,7 @@ div.sk-label-container:hover .sk-estimator-doc-link.fitted:hover,
 
             </details>
         </div>
-    </div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-5" type="checkbox"><label for="sk-estimator-id-5" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>num</div></div></label><div class="sk-toggleable__content fitted" data-param-prefix="preprocessor__num__"><pre>['authorFollowers', 'hashtags_count', 'mentions_count', 'content_length', 'account_age_days']</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-6" type="checkbox"><label for="sk-estimator-id-6" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>StandardScaler</div></div><div><a class="sk-estimator-doc-link fitted" rel="noreferrer" target="_blank" href="https://scikit-learn.org/1.7/modules/generated/sklearn.preprocessing.StandardScaler.html">?<span>Documentation for StandardScaler</span></a></div></label><div class="sk-toggleable__content fitted" data-param-prefix="preprocessor__num__">
+    </div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-14" type="checkbox"><label for="sk-estimator-id-14" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>num</div></div></label><div class="sk-toggleable__content fitted" data-param-prefix="preprocessor__num__"><pre>['authorFollowers', 'hashtags_count', 'mentions_count', 'content_length', 'account_age_days']</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-15" type="checkbox"><label for="sk-estimator-id-15" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>StandardScaler</div></div><div><a class="sk-estimator-doc-link fitted" rel="noreferrer" target="_blank" href="https://scikit-learn.org/1.7/modules/generated/sklearn.preprocessing.StandardScaler.html">?<span>Documentation for StandardScaler</span></a></div></label><div class="sk-toggleable__content fitted" data-param-prefix="preprocessor__num__">
         <div class="estimator-table">
             <details>
                 <summary>Parameters</summary>
@@ -1422,7 +1439,7 @@ div.sk-label-container:hover .sk-estimator-doc-link.fitted:hover,
 
             </details>
         </div>
-    </div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-7" type="checkbox"><label for="sk-estimator-id-7" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>cat</div></div></label><div class="sk-toggleable__content fitted" data-param-prefix="preprocessor__cat__"><pre>['authorVerified']</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-8" type="checkbox"><label for="sk-estimator-id-8" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>OneHotEncoder</div></div><div><a class="sk-estimator-doc-link fitted" rel="noreferrer" target="_blank" href="https://scikit-learn.org/1.7/modules/generated/sklearn.preprocessing.OneHotEncoder.html">?<span>Documentation for OneHotEncoder</span></a></div></label><div class="sk-toggleable__content fitted" data-param-prefix="preprocessor__cat__">
+    </div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-16" type="checkbox"><label for="sk-estimator-id-16" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>cat</div></div></label><div class="sk-toggleable__content fitted" data-param-prefix="preprocessor__cat__"><pre>['authorVerified']</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-17" type="checkbox"><label for="sk-estimator-id-17" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>OneHotEncoder</div></div><div><a class="sk-estimator-doc-link fitted" rel="noreferrer" target="_blank" href="https://scikit-learn.org/1.7/modules/generated/sklearn.preprocessing.OneHotEncoder.html">?<span>Documentation for OneHotEncoder</span></a></div></label><div class="sk-toggleable__content fitted" data-param-prefix="preprocessor__cat__">
         <div class="estimator-table">
             <details>
                 <summary>Parameters</summary>
@@ -1474,7 +1491,7 @@ div.sk-label-container:hover .sk-estimator-doc-link.fitted:hover,
 
             </details>
         </div>
-    </div></div></div></div></div></div></div></div><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-9" type="checkbox"><label for="sk-estimator-id-9" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>LogisticRegression</div></div><div><a class="sk-estimator-doc-link fitted" rel="noreferrer" target="_blank" href="https://scikit-learn.org/1.7/modules/generated/sklearn.linear_model.LogisticRegression.html">?<span>Documentation for LogisticRegression</span></a></div></label><div class="sk-toggleable__content fitted" data-param-prefix="classifier__">
+    </div></div></div></div></div></div></div></div><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-18" type="checkbox"><label for="sk-estimator-id-18" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>LogisticRegression</div></div><div><a class="sk-estimator-doc-link fitted" rel="noreferrer" target="_blank" href="https://scikit-learn.org/1.7/modules/generated/sklearn.linear_model.LogisticRegression.html">?<span>Documentation for LogisticRegression</span></a></div></label><div class="sk-toggleable__content fitted" data-param-prefix="classifier__">
         <div class="estimator-table">
             <details>
                 <summary>Parameters</summary>
@@ -1609,13 +1626,13 @@ document.querySelectorAll('.fa-regular.fa-copy').forEach(function(element) {
 </section>
 <section id="predict" class="level1">
 <h1>Predict</h1>
-<div id="78179b02" class="cell" data-execution_count="13">
+<div id="44e283cc" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>y_pred <span class="op">=</span> pipeline.predict(X_test)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="evaluación-del-modelo" class="level1">
 <h1>EVALUACIÓN DEL MODELO</h1>
-<div id="0e526710" class="cell" data-execution_count="14">
+<div id="e393325f" class="cell" data-execution_count="14">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"📊 Reporte de Clasificación:</span><span class="ch">\n</span><span class="st">"</span>)</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(classification_report(y_test, y_pred))</span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1647,7 +1664,7 @@ Usuario Participativo       0.94      1.00      0.97      9220
 </div>
 </div>
 </div>
-<div id="61b59937" class="cell" data-execution_count="15">
+<div id="20d8056b" class="cell" data-execution_count="15">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparar distribuciones reales y predichas</span></span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">12</span>,<span class="dv">5</span>))</span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1664,12 +1681,12 @@ Usuario Participativo       0.94      1.00      0.97      9220
 <span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
 <span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>C:\Users\StarMedia\AppData\Local\Temp\ipykernel_3144\1990516036.py:4: FutureWarning: 
+<pre><code>C:\Users\StarMedia\AppData\Local\Temp\ipykernel_16228\1990516036.py:4: FutureWarning: 
 
 Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `y` variable to `hue` and set `legend=False` for the same effect.
 
   sns.countplot(y_test, ax=ax[0], palette="pastel")
-C:\Users\StarMedia\AppData\Local\Temp\ipykernel_3144\1990516036.py:9: FutureWarning: 
+C:\Users\StarMedia\AppData\Local\Temp\ipykernel_16228\1990516036.py:9: FutureWarning: 
 
 Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `y` variable to `hue` and set `legend=False` for the same effect.
 
