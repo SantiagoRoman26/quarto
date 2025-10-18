@@ -42,6 +42,10 @@ nltk.download('stopwords')
 stop_words = set(stopwords.words('spanish'))
 ```
 ## Limpieza de los datos
+### Importar DataSet
+
+En este caso se usó un dataset que recompila mensajes de twitter, este dataset consta de 1500 registros en 26 tablas, todos con información de mensajes que fueron recompilados de twitter de Ecuador
+
 ```{python}
 df = pd.read_csv('1500_tweets_con_toxicity.csv')
 df.info()
@@ -81,6 +85,15 @@ columns_to_keep = [
 ]
 df = df[columns_to_keep]
 ```
+
+Para este Proyecto no es necesario mantener todas las 26 columnas que forman al dataset, por lo que se hace un filtrado según las columnas que puedan representar valor para encontrar la toxicidad de los mensajes de Twitter. Para esto se escogió: 
+
+- Texto: content
+- Categoricas: isReply, authorVerified, has_profile_picture
+- Numericas: authorFollowers, account_age_days, mentions_count, hashtags_count, content_length, sentiment_polarity, toxicity_score. 
+
+Columnas que nos proporcionara información tanto del mensaje como del usuario que realizo el comentario 
+
 ### Limpieza del texto
 
 ```{python}
@@ -100,7 +113,7 @@ Para permitirme una mejor limpieza de los textos hice uso de stopwords, y para e
 ## EDA
 ### Distribucion 
 
-Después de eliminar los valores nulos dentro de la columna objetivo, se puede observar que quedaron 1347 registros para su procesamiento
+Después de eliminar los valores nulos dentro de la columna objetivo, se puede observar que quedaron 1347 registros para su procesamiento. Aqui se puede mostrar las estadísticas descriptivas de las categorias que se usaran.
 
 ```{python}
 # Estadísticas numéricas
@@ -126,7 +139,7 @@ plt.show()
 
 ```
 
-El boxplot se observa una dispersión limitada y muy pocos outliers dejando a la vista que escoger un valor mayor a 0.5 será lo mejor para poder seleccionar si un comentario es toxico o no 
+El boxplot se observa una dispersión limitada y muy pocos outliers dejando a la vista que escoger un valor un poco mayor a 0.5 será lo mejor para poder seleccionar si un comentario es toxico o no. 
 
 ### Conteos de target
 
@@ -156,24 +169,13 @@ plt.title(f'Distribución target con umbral = {threshold}')
 plt.show()
 ```
 
-El gráfico de barras evidencia un fuerte desbalance: aproximadamente 89% no tóxicos y 11% tóxicos. Con esto se avanzo para realizar el procesamiento de los datos.
+-EL grafico de distribución muestra que entre mayor la cantidad de toxicidad en un comentario, menos comentarios son, por lo que escoger un valor muy alto para decidir si un mensaje es toxico es muy inefectivo, por esto se tomó un valor algo pequeño sobre la media como es 0.6.
+- Se demostro que la API para obtener los valores de toxicidad si puede llegar a fallar y de esta forma generar valores nulos que pueden afectar al procesamiento de los datos.
+- El gráfico de barras evidencia un fuerte desbalance: aproximadamente 89% no tóxicos y 11% tóxicos. Con esto se avanzo para realizar el procesamiento de los datos.
 
 ## Preprocesamiento y codificación:
 ### Preparar features a usar
 ```{python}
-features = [
-    'clean_content',          # texto procesado
-    'authorVerified',
-    'has_profile_picture',
-    'isReply',
-    'authorFollowers',
-    'account_age_days',
-    'mentions_count',
-    'hashtags_count', 
-    'content_length', 
-    'sentiment_polarity'
-]
-
 text_feature = ['clean_content']
 categorical_features = ['isReply', 'authorVerified', 'has_profile_picture']
 numeric_features = [
