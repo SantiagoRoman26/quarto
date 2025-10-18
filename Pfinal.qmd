@@ -1,0 +1,503 @@
+---
+title: "Proyecto Final"
+author: "Santiago Roman"
+date: "10-18-2025"
+format: 
+  html:
+    embed-resources: true 
+---
+# Proyecto Final 
+## Importar librerias
+
+```{python}
+import os
+import re
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import TruncatedSVD, PCA
+from sklearn.preprocessing import OneHotEncoder, StandardScaler, FunctionTransformer
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.linear_model import LogisticRegression, LinearRegression
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.metrics import (accuracy_score, precision_score, recall_score,
+                             f1_score, roc_auc_score, confusion_matrix, ConfusionMatrixDisplay,
+                             mean_absolute_error, mean_squared_error, r2_score)
+from sklearn.cluster import KMeans, AgglomerativeClustering
+from sklearn.metrics import silhouette_score
+from sklearn.metrics import RocCurveDisplay
+from sklearn.pipeline import make_pipeline
+
+RANDOM_STATE = 42
+
+import nltk
+from nltk.corpus import stopwords
+sns.set(style="whitegrid")
+nltk.download('stopwords')
+stop_words = set(stopwords.words('spanish'))
+```
+## Limpieza de los datos
+```{python}
+df = pd.read_csv('1500_tweets_con_toxicity.csv')
+df.info()
+df.head()
+
+```
+
+```{python}
+if 'tweetId' in df.columns:
+    df.drop_duplicates(subset='tweetId', inplace=True)
+
+# Revisar nulos por columna
+print("Nulos por columna:")
+print(df.isnull().sum().sort_values(ascending=False).head(20))
+```
+
+En esta sección se realiza una inspección inicial de la estructura del conjunto de datos y se identifican los valores faltantes (nulos), puesto a que se sabe que el dataset tiene 1500 datos.
+
+### Eliminar valores nulos o vacios en la columna target
+
+Para mantener el control de los datos de la columna targe, que sera la columna toxicity_score, primero es necesario eliminar los valores nulos, puesto que la api, en ocaciones puede fallar, dejando filas sin este valor, dificultando su procesamiento dentro del modelo
+
+```{python}
+df = df.dropna(subset=['toxicity_score'])
+df.isnull().sum().sort_values(ascending=False)
+```
+
+Aqui se puede observar como ya no existen valores nulos en la columna toxicity_score
+
+### Seleccionar columnas relevantes
+```{python}
+columns_to_keep = [
+    'content', 'isReply', 'authorVerified', 'has_profile_picture',
+    'authorFollowers', 'account_age_days', 'mentions_count',
+    'hashtags_count', 'content_length', 'sentiment_polarity',
+    'toxicity_score'
+]
+df = df[columns_to_keep]
+```
+### Limpieza del texto
+
+```{python}
+def clean_text(text):
+    text = str(text).lower()
+    text = re.sub(r"http\S+", "", text)         # URLs
+    text = re.sub(r"@\w+", "", text)            # menciones
+    text = re.sub(r"#\w+", "", text)            # hashtags
+    text = re.sub(r"[^a-záéíóúñü\s]", "", text) # puntuación
+    text = " ".join([word for word in text.split() if word not in stop_words])
+    return text
+
+df['clean_content'] = df['content'].apply(clean_text)
+```
+Para permitirme una mejor limpieza de los textos hice uso de stopwords, y para este caso en especifico de las stopwords que permite usar el nltk del idioma español
+
+## EDA
+### Distribucion 
+
+Después de eliminar los valores nulos dentro de la columna objetivo, se puede observar que quedaron 1347 registros para su procesamiento
+
+```{python}
+# Estadísticas numéricas
+print(df.describe().T)
+
+plt.figure(figsize=(8,4))
+sns.histplot(df['toxicity_score'], bins=30, kde=True)
+plt.title('Distribución de TOXICITY_SCORE')
+plt.xlabel('Toxicity score (0-1)')
+plt.show()
+
+```
+
+Este grafico nos da a entender como es la distribucion de la cantidad de toxicidad en los registros, mostrando que por lo general se evita tener una gran toxicidad
+
+### Boxplot para ver outliers
+
+```{python}
+plt.figure(figsize=(6,3))
+sns.boxplot(x=df['toxicity_score'])
+plt.title('Boxplot TOXICITY_SCORE')
+plt.show()
+
+```
+
+El boxplot se observa una dispersión limitada y muy pocos outliers dejando a la vista que escoger un valor mayor a 0.5 será lo mejor para poder seleccionar si un comentario es toxico o no 
+
+### Conteos de target
+
+```{python}
+
+if 'isReply' in df.columns:
+    plt.figure(figsize=(6,3))
+    sns.countplot(x='isReply', data=df)
+    plt.title('isReply distribución')
+    plt.show()
+
+```
+
+### Umbral de Toxicidad
+
+Tras observar la distribución de toxicity_score (histograma y boxplot), se decide usar umbral = 0.6 como punto incial para considerar 'tóxico' porque suele marcar la zona donde la densidad decrece significativamente hacia valores altos. 
+
+```{python}
+threshold = 0.6
+df['target_toxic'] = (df['toxicity_score'] >= threshold).astype(int)
+
+# Ver la proporción de clases
+print("Distribución binaria (0=no tóxico, 1=tóxico):")
+print(df['target_toxic'].value_counts(normalize=True))
+sns.countplot(x='target_toxic', data=df)
+plt.title(f'Distribución target con umbral = {threshold}')
+plt.show()
+```
+
+El gráfico de barras evidencia un fuerte desbalance: aproximadamente 89% no tóxicos y 11% tóxicos. Con esto se avanzo para realizar el procesamiento de los datos.
+
+## Preprocesamiento y codificación:
+### Preparar features a usar
+```{python}
+features = [
+    'clean_content',          # texto procesado
+    'authorVerified',
+    'has_profile_picture',
+    'isReply',
+    'authorFollowers',
+    'account_age_days',
+    'mentions_count',
+    'hashtags_count', 
+    'content_length', 
+    'sentiment_polarity'
+]
+
+text_feature = ['clean_content']
+categorical_features = ['isReply', 'authorVerified', 'has_profile_picture']
+numeric_features = [
+    'authorFollowers', 'account_age_days', 'mentions_count',
+    'hashtags_count', 'content_length', 'sentiment_polarity'
+]
+print(['clean_content'])
+```
+
+### Generar los Transformers para los modelos
+```{python}
+spanish_stopwords = stopwords.words('spanish')
+tfidf = TfidfVectorizer(stop_words=spanish_stopwords)
+cat_encoder = OneHotEncoder(handle_unknown='ignore')
+scaler = StandardScaler()
+
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('text', tfidf, 'clean_content'),
+        ('cat', OneHotEncoder(handle_unknown='ignore', sparse_output=False), categorical_features),
+        ('num', StandardScaler(), numeric_features)
+    ],
+    remainder='drop'
+)
+```
+
+Se aplicaron transformaciones con TF-IDF para texto, escalado para variables numéricas y codificación one-hot para categóricas, integradas en un ColumnTransformer.
+
+### División train/test
+
+```{python}
+X = df[['clean_content'] + categorical_features + numeric_features]
+y_class = df['target_toxic']        # para clasificación binaria
+y_reg = df['toxicity_score']        # para regresión (continuo)
+
+X_train, X_test, y_train_cl, y_test_cl = train_test_split(
+    X, y_class, test_size=0.2, random_state=RANDOM_STATE, stratify=y_class
+)
+
+# Para regresión (mismo split de X, pero con y_reg alineado):
+# usamos el mismo índice de train/test para evitar fugas:
+_, _, y_train_reg, y_test_reg = train_test_split(
+    X, y_reg, test_size=0.2, random_state=RANDOM_STATE, stratify=y_class
+)
+```
+
+## Clasificación
+
+Para la clasificación se entrenó un modelo de regresión logística. Esto debido a que el tipo de datos que se puede buscar es un binario. 1 es toxico, 2 no lo es. 
+
+### Pipeline para el Logistic Regression y entrenamiento
+
+```{python}
+clf_logistic = Pipeline([
+    ('preproc', preprocessor),
+    ('clf', LogisticRegression(max_iter=2000, class_weight='balanced', random_state=RANDOM_STATE))
+])
+
+# Entrenar
+clf_logistic.fit(X_train, y_train_cl)
+
+```
+
+### Predicciones
+
+```{python}
+y_pred_log = clf_logistic.predict(X_test)
+y_proba_log = clf_logistic.predict_proba(X_test)[:,1]
+
+print("Logistic Regression:")
+print("Accuracy:", accuracy_score(y_test_cl, y_pred_log))
+print("Precision:", precision_score(y_test_cl, y_pred_log, zero_division=0))
+print("Recall:", recall_score(y_test_cl, y_pred_log, zero_division=0))
+print("F1:", f1_score(y_test_cl, y_pred_log, zero_division=0))
+print("ROC-AUC:", roc_auc_score(y_test_cl, y_proba_log))
+```
+
+Se obtuvo una precisión aceptable (~85%) pero con métricas de recall y F1 moderadas debido al desbalance de clases, ya que existe en su gran mayoría un mayor número de comentarios no tóxicos, frente a los tóxicos.
+
+### Matriz de confusión
+
+```{python}
+cm = confusion_matrix(y_test_cl, y_pred_log)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['no_tox','tox'])
+disp.plot(cmap='Blues')
+plt.title('Confusion Matrix - Logistic')
+plt.show()
+```
+
+Muestra una buena detección de la clase no tóxica, aunque algunos falsos negativos persisten.
+
+### Curva ROC
+
+```{python}
+
+RocCurveDisplay.from_estimator(clf_logistic, X_test, y_test_cl)
+plt.title('Logistic')
+plt.show()
+```
+
+El área bajo la curva (ROC-AUC ≈ 0.70) refleja un rendimiento medio, con capacidad moderada de distinguir entre tweets tóxicos y no tóxicos.
+
+## Regresión
+
+Se implementaron modelos LinearRegression y RandomForestRegressor para predecir la toxicidad continua. El Random Forest mostró mejor ajuste (menor MAE y mayor R²). Se utilizaron 2 modelos para poder evaluar si la toxicidad puede explicarse de forma lineal o si requiere un enfoque más flexible. En este caso, el Random Forest mostró mejor rendimiento (menor error y mayor R²), lo que sugiere relaciones más complejas en los datos.
+
+### Pipeline y entrenamiento
+
+```{python}
+reg_lin = Pipeline([
+    ('preproc', preprocessor),
+    ('linreg', LinearRegression())
+])
+
+reg_rf = Pipeline([
+    ('preproc', preprocessor),
+    ('rf', RandomForestRegressor(n_estimators=200, random_state=RANDOM_STATE))
+])
+
+# Entrenar
+reg_lin.fit(X_train, y_train_reg)
+reg_rf.fit(X_train, y_train_reg)
+```
+### Predicciones
+
+```{python}
+y_pred_lin = reg_lin.predict(X_test)
+y_pred_rf = reg_rf.predict(X_test)
+
+# Métricas
+def regression_metrics(y_true, y_pred, label="Model"):
+    mae = mean_absolute_error(y_true, y_pred)
+    rmse = mean_squared_error(y_true, y_pred)
+    r2 = r2_score(y_true, y_pred)
+    print(f"{label} -> MAE: {mae:.4f}, RMSE: {rmse:.4f}, R2: {r2:.4f}")
+
+regression_metrics(y_test_reg, y_pred_lin, "LinearRegression")
+```
+### Scatter plots
+
+```{python}
+plt.figure(figsize=(6,6))
+plt.scatter(y_test_reg, y_pred_rf, alpha=0.5)
+plt.plot([0,1],[0,1], 'r--')  # línea ideal
+plt.xlabel("Toxicity real")
+plt.ylabel("Toxicity predicho")
+plt.title("Real vs Predicho - RandomForestRegressor")
+plt.show()
+
+```
+
+El scatter muestra que la mayoría de predicciones del Random Forest siguen la línea ideal, indicando un buen ajuste general.
+
+
+### Histograma de errores
+
+```{python}
+resid = y_test_reg - y_pred_rf
+plt.figure(figsize=(6,4))
+sns.histplot(resid, bins=30, kde=True)
+plt.title("Errores residuales - RandomForestRegressor")
+plt.xlabel("Residual (real - predicho)")
+plt.show()
+```
+
+Los residuos se concentran cerca de cero, lo que sugiere ausencia de sesgos importantes en las predicciones del modelo.
+
+## Clustering
+### Preparar features 
+
+```{python}
+# 1. Procesar texto con TF-IDF
+tfidf_clust = TfidfVectorizer(max_features=500, stop_words=spanish_stopwords, ngram_range=(1,2))
+X_text_tfidf = tfidf_clust.fit_transform(df['clean_content'])
+
+print(f"TF-IDF shape: {X_text_tfidf.shape}")
+
+# 2. Reducir dimensionalidad del texto con SVD (manejar caso de pocas features)
+n_components = min(20, X_text_tfidf.shape[1] - 1)
+if n_components < 2:
+    n_components = 1
+    print(" Pocas características en TF-IDF, usando 1 componente")
+else:
+    print(f"Usando {n_components} componentes para SVD")
+
+svd = TruncatedSVD(n_components=n_components, random_state=RANDOM_STATE)
+X_text_reduced = svd.fit_transform(X_text_tfidf)
+print(f"Texto reducido: {X_text_reduced.shape}")
+
+# 3. Procesar variables categóricas
+cat_encoder_clust = OneHotEncoder(handle_unknown='ignore', sparse_output=False)
+X_cat_encoded = cat_encoder_clust.fit_transform(df[categorical_features])
+print(f"Categóricas: {X_cat_encoded.shape}")
+
+# 4. Estandarizar variables numéricas
+scaler_clust = StandardScaler()
+X_num_scaled = scaler_clust.fit_transform(df[numeric_features])
+print(f"Numéricas: {X_num_scaled.shape}")
+
+# 5. Combinar todas las características
+X_clust = np.hstack([X_text_reduced, X_cat_encoded, X_num_scaled])
+print(f"Forma final para clustering: {X_clust.shape}")
+```
+
+Se usó TF-IDF + SVD para reducir texto y se combinaron con variables categóricas y numéricas. 
+
+### Elegir k con silhouette y aplicar KMeans
+
+```{python}
+sil_scores = {}
+for k in range(2, 7):
+    kmeans = KMeans(n_clusters=k, random_state=RANDOM_STATE, n_init=10)
+    labels = kmeans.fit_predict(X_clust)
+    sil = silhouette_score(X_clust, labels)
+    sil_scores[k] = sil
+    print(f"k={k}, silhouette={sil:.4f}")
+
+best_k = max(sil_scores, key=sil_scores.get)
+print(f"Mejor k por silhouette: {best_k}")
+```
+
+Se probaron valores de k entre 2 y 6; el mejor fue k = 2 (silhouette = 0.93).
+
+### Aplicar KMeans con el mejor k (k=2)
+
+```{python}
+kmeans_final = KMeans(n_clusters=best_k, random_state=RANDOM_STATE, n_init=10)
+cluster_labels = kmeans_final.fit_predict(X_clust)
+
+# Añadir etiquetas de cluster al dataframe
+df_clustering = df.copy()
+df_clustering['cluster_kmeans'] = cluster_labels
+
+```
+### Visualizar clusters
+
+```{python}
+# Reducir a 2D para visualización
+pca = PCA(n_components=2, random_state=RANDOM_STATE)
+X_2d = pca.fit_transform(X_clust)
+
+plt.figure(figsize=(15, 5))
+
+# Subplot 1: Clusters de KMeans
+plt.subplot(1, 3, 1)
+scatter = plt.scatter(X_2d[:, 0], X_2d[:, 1], c=cluster_labels, cmap='tab10', alpha=0.6, s=30)
+plt.colorbar(scatter)
+plt.title(f'KMeans Clusters (k={best_k})')
+plt.xlabel('Componente Principal 1')
+plt.ylabel('Componente Principal 2')
+
+# Subplot 2: Target binario (toxicidad)
+plt.subplot(1, 3, 2)
+colors = ['blue', 'red']  # 0=no tóxico, 1=tóxico
+for target_val in [0, 1]:
+    mask = df_clustering['target_toxic'] == target_val
+    plt.scatter(X_2d[mask, 0], X_2d[mask, 1], 
+                c=colors[target_val], label=f'Toxicity={target_val}', alpha=0.6, s=30)
+plt.legend()
+plt.title('Distribución por Toxicidad')
+plt.xlabel('Componente Principal 1')
+plt.ylabel('Componente Principal 2')
+
+# Subplot 3: Comparación clusters vs toxicidad
+plt.subplot(1, 3, 3)
+for cluster_id in range(best_k):
+    mask = df_clustering['cluster_kmeans'] == cluster_id
+    toxic_ratio = df_clustering[mask]['target_toxic'].mean()
+    plt.scatter(X_2d[mask, 0], X_2d[mask, 1], 
+                c=['red' if toxic_ratio > 0.5 else 'blue'], 
+                label=f'Cluster {cluster_id}', alpha=0.6, s=30)
+plt.title('Clusters coloreados por toxicidad predominante')
+plt.xlabel('Componente Principal 1')
+plt.ylabel('Componente Principal 2')
+
+plt.tight_layout()
+plt.show()
+```
+
+Los gráficos PCA en 2D muestran:
+
+- Distribución clara entre los dos clusters (izquierda).
+- Separación moderada entre tweets tóxicos y no tóxicos (centro).
+- Diferencias visibles en toxicidad promedio por cluster (derecha).
+
+### Análisis de relación entre clusters y target
+
+```{python}
+print("\n--- ANÁLISIS CLUSTERS vs TARGET ---")
+
+# Tabla de contingencia
+ct = pd.crosstab(df_clustering['cluster_kmeans'], df_clustering['target_toxic'], 
+                 normalize='index')
+print("\nProporción de toxicidad por cluster (KMeans):")
+display(ct)
+
+# Estadísticas por cluster
+print("\nEstadísticas por cluster:")
+cluster_stats = df_clustering.groupby('cluster_kmeans').agg({
+    'target_toxic': ['count', 'mean', 'sum'],
+    'toxicity_score': ['mean', 'std'],
+    'authorFollowers': 'mean',
+    'content_length': 'mean'
+}).round(4)
+
+cluster_stats.columns = ['_'.join(col).strip() for col in cluster_stats.columns.values]
+display(cluster_stats)
+```
+
+El cluster 0 concentra la mayoría de los tweets (99%) y refleja una toxicidad media de 0.25, mientras que el cluster 1 tiene un único tweet no tóxico.
+
+## Conclusiones
+
+```{python}
+print("\n--- Resumen rápido ---")
+print("Tamaño dataset tras limpiar toxicity_score:", df.shape[0])
+print("Umbral usado para binarizar toxicity:", threshold)
+print("Mejor k clustering por silhouette:", best_k)
+```
+
+- Inicialmente se realizó una limpieza de los datos eliminando los valores nulos y columnas irrelevantes, esto permitió que la variable objetivo toxicity_score fue depurada, quedando 1,347 registros válidos para el análisis. Finalmente, el texto fue normalizado (minúsculas, sin URLs, menciones ni hashtags) y se aplicaron stopwords en español con NLTK para mejorar la calidad del texto.
+
+- El análisis estadístico reveló un fuerte desbalance en la distribución de la toxicidad: la mayoría de los tweets presentan valores bajos de toxicity_score, mientras que solo un pequeño porcentaje supera 0.6, por lo que se uso para clasificar los tweets entre tóxicos y no tóxicos, equilibrando la detección de casos sin perder representatividad.
+
+- Se implementó Logistic Regression como modelo de clasificación binaria para identificar tweets tóxicos debido a la fortaleza que este tiene a la hora de hacer predicciones con valores binarios. El modelo alcanzó una precisión global del 85% y una ROC-AUC de 0.70, lo cual indica una capacidad moderada de distinguir entre ambas clases.
+
+- Se implementaron dos modelos para predecir el valor continuo de toxicidad, en donde se identificó que Random Forest Regressor capturó relaciones no lineales y mostró un mejor rendimiento (menor MAE y mayor R²), indicando que la toxicidad depende de interacciones complejas entre características textuales y numéricas.

@@ -12,6 +12,8 @@ website:
         href: index.qmd
       - text: MidTerm
         href: midterm.qmd
+      - text: Proyecto Final
+        href: Pfinal.qmd
       - section: "Laboratorios"
         contents:
           - lab1.qmd
